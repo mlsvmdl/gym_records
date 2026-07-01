@@ -1,19 +1,15 @@
 {
   "files": {
-    "main.css": "/gym_records/static/css/main.b6542a59.css",
-    "main.js": "/gym_records/static/js/main.1fca5737.js",
+    "main.css": "/gym_records/static/css/main.a240c550.css",
+    "main.js": "/gym_records/static/js/main.53141157.js",
     "static/js/453.159043da.chunk.js": "/gym_records/static/js/453.159043da.chunk.js",
-    "static/media/metal-mania-latin-400-normal.woff": "/gym_records/static/media/metal-mania-latin-400-normal.ad26bdba03ac80384a26.woff",
-    "static/media/metal-mania-latin-400-normal.woff2": "/gym_records/static/media/metal-mania-latin-400-normal.2100e69ff8c879a6f9fd.woff2",
-    "static/media/metal-mania-latin-ext-400-normal.woff2": "/gym_records/static/media/metal-mania-latin-ext-400-normal.ed403e85874f411daebe.woff2",
-    "static/media/metal-mania-latin-ext-400-normal.woff": "/gym_records/static/media/metal-mania-latin-ext-400-normal.75a41db795dcff16a7e5.woff",
     "index.html": "/gym_records/index.html",
-    "main.b6542a59.css.map": "/gym_records/static/css/main.b6542a59.css.map",
-    "main.1fca5737.js.map": "/gym_records/static/js/main.1fca5737.js.map",
+    "main.a240c550.css.map": "/gym_records/static/css/main.a240c550.css.map",
+    "main.53141157.js.map": "/gym_records/static/js/main.53141157.js.map",
     "453.159043da.chunk.js.map": "/gym_records/static/js/453.159043da.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b6542a59.css",
-    "static/js/main.1fca5737.js"
+    "static/css/main.a240c550.css",
+    "static/js/main.53141157.js"
   ]
 }
