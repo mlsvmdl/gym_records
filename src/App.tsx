@@ -1,267 +1,117 @@
 import React, { useMemo, useState } from "react";
 import {
   Box,
-  ThemeProvider,
-  keyframes,
+  Card,
+  CardContent,
   Typography,
-  TableContainer,
-  TableCell,
+  TextField,
+  InputAdornment,
   Table,
+  TableBody,
+  TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Paper,
-  TableBody,
-  IconButton,
-  Tooltip,
-  Switch,
-  FormControlLabel,
-  TextField,
-  InputAdornment,
-  Card,
-  CardContent,
-  useMediaQuery,
+  Collapse,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { lightTheme, darkTheme } from "./theme";
-import "@fontsource/metal-mania";
+import { ThemeProvider } from "@mui/material/styles";
+import { darkTheme } from "./theme";
+import { Hero, SortMode, LiftType } from "./types";
+import { calculateGLPoints } from "./utils/glPoints";
+import { RankBadge } from "./components/RankBadge";
+import { HeroDetail } from "./components/HeroDetail";
+import { SortControls } from "./components/SortControls";
+import { RustOverlay } from "./components/RustOverlay";
+import { BarbellDivider } from "./components/BarbellDivider";
+import { AtmosphereLayer } from "./components/AtmosphereLayer";
+import heroesSeed from "./data/heroes.json";
 
-type RecordItem = {
-  type: "Bench" | "Deadlift" | "Squat";
-  value: number;
-};
+const LIFT_TYPES: LiftType[] = ["Squat", "Bench", "Deadlift"];
 
-type Hero = {
-  name: string;
-  Records: RecordItem[];
-};
-
-const heroesSeed: Hero[] = [
-  {
-    name: "Kadi",
-    Records: [
-      { type: "Bench", value: 140 },
-      { type: "Deadlift", value: 220 },
-      { type: "Squat", value: 220 },
-    ],
-  },
-];
-
-// Enhanced ranking number component
-const RankingNumber = ({
-  rank,
-  size = "normal",
-}: {
-  rank: number;
-  size?: "normal" | "small";
-}) => {
-  const getRankStyle = (position: number) => {
-    if (position === 1) {
-      return {
-        background: "linear-gradient(135deg, #FFD700, #FFA500)", // Gold
-        border: "2px solid #FFD700",
-        boxShadow:
-          "0 4px 15px rgba(255, 215, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.3)",
-        color: "#000000",
-        textShadow: "0 1px 2px rgba(255,255,255,0.3)",
-      };
-    } else if (position === 2) {
-      return {
-        background: "linear-gradient(135deg, #C0C0C0, #A0A0A0)", // Silver
-        border: "2px solid #C0C0C0",
-        boxShadow:
-          "0 4px 15px rgba(192, 192, 192, 0.5), inset 0 1px 0 rgba(255,255,255,0.3)",
-        color: "#000000",
-        textShadow: "0 1px 2px rgba(255,255,255,0.3)",
-      };
-    } else if (position === 3) {
-      return {
-        background: "linear-gradient(135deg, #CD7F32, #B8860B)", // Bronze
-        border: "2px solid #CD7F32",
-        boxShadow:
-          "0 4px 15px rgba(205, 127, 50, 0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
-        color: "#000000",
-        textShadow: "0 1px 2px rgba(255,255,255,0.2)",
-      };
-    } else {
-      return {
-        background: "linear-gradient(135deg, #444444, #222222)",
-        border: "2px solid #666666",
-        boxShadow:
-          "0 4px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
-        color: "#ffffff",
-        textShadow: "0 1px 2px rgba(0,0,0,0.8)",
-      };
-    }
-  };
-
-  const rankStyle = getRankStyle(rank);
-  const dimensions =
-    size === "small"
-      ? { width: 36, height: 36, fontSize: 16 }
-      : { width: 44, height: 44, fontSize: 18 };
-
-  return (
-    <Box
-      sx={{
-        ...dimensions,
-        borderRadius: 2,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: 900,
-        position: "relative",
-        transition: "all 200ms ease",
-        "&:hover": {
-          transform: "scale(1.1)",
-          filter: "brightness(1.1)",
-        },
-        ...rankStyle,
-      }}
-    >
-      {rank}
-    </Box>
-  );
-};
-
-// Mobile card component for hero display
-const HeroCard = ({
-  hero,
-  rank,
-}: {
-  hero: Hero & { total: number; originalRank?: number };
-  rank: number;
-}) => {
-  const actualRank = hero.originalRank || rank;
-
-  return (
-    <Card
-      sx={{
-        mb: 2,
-        background:
-          actualRank === 1
-            ? "linear-gradient(135deg, rgba(255,215,0,0.12), rgba(0,0,0,0.6))"
-            : actualRank === 2
-            ? "linear-gradient(135deg, rgba(192,192,192,0.12), rgba(0,0,0,0.6))"
-            : actualRank === 3
-            ? "linear-gradient(135deg, rgba(205,127,50,0.12), rgba(0,0,0,0.6))"
-            : "linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.55))",
-        border: "1px solid rgba(255,255,255,0.1)",
-        transition: "transform 180ms ease",
-        "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.6)",
-        },
-      }}
-    >
-      <CardContent sx={{ p: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          <RankingNumber rank={actualRank as number} size="small" />
-          <Box
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 800,
-              background: "linear-gradient(180deg,#d6d6d6,#9a9a9a)",
-              color: "#111",
-              boxShadow: "inset 0 2px 6px rgba(0,0,0,0.5)",
-              fontSize: 18,
-            }}
-          >
-            {hero.name[0]}
-          </Box>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: "#fff" }}>
-              {hero.name}
-            </Typography>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 900,
-                letterSpacing: 1.2,
-                color:
-                  actualRank === 1
-                    ? "#FFD700"
-                    : actualRank === 2
-                    ? "#C0C0C0"
-                    : actualRank === 3
-                    ? "#CD7F32"
-                    : "#ffd9d9",
-              }}
-            >
-              {hero.total} KG
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Records breakdown */}
-        <Box
-          sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1 }}
-        >
-          {hero.Records.map((record) => (
-            <Box
-              key={record.type}
-              sx={{
-                textAlign: "center",
-                p: 1,
-                borderRadius: 1,
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{ color: "rgba(255,255,255,0.7)", fontSize: "0.7rem" }}
-              >
-                {record.type}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 700, color: "#fff", fontSize: "0.9rem" }}
-              >
-                {record.value}kg
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      </CardContent>
-    </Card>
-  );
-};
+const getLiftValue = (hero: Hero, type: LiftType) =>
+  hero.Records.find((r) => r.type === type)?.value ?? 0;
 
 const computeTotal = (h: Hero) => h.Records.reduce((s, r) => s + r.value, 0);
 
+interface RankedHero extends Hero {
+  total: number;
+  glPoints: number;
+  originalRank: number;
+}
+
+const getSortValue = (
+  hero: Hero & { total: number; glPoints: number },
+  mode: SortMode,
+): number => {
+  if (mode === "total") return hero.total;
+  if (mode === "glPoints") return hero.glPoints;
+  return getLiftValue(hero, mode);
+};
+
+const rankColor = (rank: number) =>
+  rank === 1
+    ? "#d9b466"
+    : rank === 2
+      ? "#c7ccd1"
+      : rank === 3
+        ? "#b47a4e"
+        : "#eee";
+
+const rankRowBg = (rank: number) =>
+  rank === 1
+    ? "linear-gradient(90deg, rgba(217,180,102,0.08), rgba(0,0,0,0.4))"
+    : rank === 2
+      ? "linear-gradient(90deg, rgba(199,204,209,0.08), rgba(0,0,0,0.4))"
+      : rank === 3
+        ? "linear-gradient(90deg, rgba(180,122,78,0.08), rgba(0,0,0,0.4))"
+        : "linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.35))";
+
+// A stat column is "active" (highlighted) when it matches the current sort mode
+const statCellSx = (isActive: boolean) => ({
+  fontFamily: "'Oswald', sans-serif",
+  fontWeight: isActive ? 800 : 500,
+  color: isActive ? "#d9463c" : "rgba(255,255,255,0.75)",
+  letterSpacing: isActive ? 0.5 : 0,
+});
+
 const App: React.FC = () => {
-  const [heroes] = useState<Hero[]>(heroesSeed);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [heroes] = useState<Hero[]>(heroesSeed as Hero[]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortMode, setSortMode] = useState<SortMode>("total");
+  const [expandedHero, setExpandedHero] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const ranked = useMemo(
+  const computed = useMemo(
     () =>
-      heroes
-        .map((h) => ({ ...h, total: computeTotal(h) }))
-        .sort((a, b) => b.total - a.total),
-    [heroes]
+      heroes.map((h) => ({
+        ...h,
+        total: computeTotal(h),
+        glPoints: calculateGLPoints(computeTotal(h), h.bodyweight, h.sex),
+      })),
+    [heroes],
+  );
+
+  const ranked = useMemo<RankedHero[]>(
+    () =>
+      [...computed]
+        .sort((a, b) => getSortValue(b, sortMode) - getSortValue(a, sortMode))
+        .map((h, i) => ({ ...h, originalRank: i + 1 })),
+    [computed, sortMode],
   );
 
   const filteredAndRanked = useMemo(() => {
     if (!searchQuery.trim()) return ranked;
-
-    const filtered = ranked.filter((hero) =>
-      hero.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    // Keep original ranks for filtered results
-    return filtered.map((hero) => ({
-      ...hero,
-      originalRank: ranked.findIndex((h) => h.name === hero.name) + 1,
-    }));
+    const q = searchQuery.toLowerCase();
+    return ranked.filter((h) => h.name.toLowerCase().includes(q));
   }, [ranked, searchQuery]);
+
+  const toggleExpand = (name: string) =>
+    setExpandedHero((prev) => (prev === name ? null : name));
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -277,42 +127,44 @@ const App: React.FC = () => {
           backgroundAttachment: isMobile ? "scroll" : "fixed",
           display: "flex",
           justifyContent: "center",
-          alignItems: "flex-start",
+          position: "relative",
         }}
       >
+        <AtmosphereLayer />
         <Box
           sx={{
             display: "flex",
-            alignItems: "center",
             flexDirection: "column",
-            gap: isMobile ? 3 : 6,
+            gap: isMobile ? 3 : 4,
             width: "100%",
-            maxWidth: 960,
+            maxWidth: 1040,
+            position: "relative",
+            zIndex: 2,
           }}
         >
-          {/* Title Image - Responsive */}
-          <Box
-            sx={{
-              position: "relative",
-              width: "100%",
-              maxWidth: isMobile ? "100%" : "600px",
-              textAlign: "center",
-            }}
-          >
+          <Box sx={{ textAlign: "center" }}>
             <img
               src={`${process.env.PUBLIC_URL}/images/fireTitle.gif`}
               alt="Powerlifting Leaderboard"
               style={{
                 width: "100%",
+                maxWidth: isMobile ? "100%" : 600,
                 height: "auto",
-                maxHeight: isMobile ? "120px" : "200px",
+                maxHeight: isMobile ? 120 : 200,
                 objectFit: "contain",
               }}
             />
           </Box>
 
-          {/* Search Box */}
-          <Box sx={{ width: "100%", maxWidth: isMobile ? "100%" : 500, mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              gap: 2,
+              alignItems: isMobile ? "stretch" : "center",
+              justifyContent: "space-between",
+            }}
+          >
             <TextField
               fullWidth
               variant="outlined"
@@ -323,188 +175,325 @@ const App: React.FC = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: "rgba(255,255,255,0.6)" }} />
+                    <SearchIcon sx={{ color: "rgba(255,255,255,0.5)" }} />
                   </InputAdornment>
                 ),
                 sx: {
                   backgroundColor: "rgba(0,0,0,0.7)",
-                  borderRadius: 2,
+                  borderRadius: 1,
+                  color: "#fff",
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "rgba(255,255,255,0.2)",
+                    borderColor: "rgba(255,255,255,0.15)",
                   },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "rgba(255,255,255,0.4)",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#ff4444",
-                  },
-                  color: "#ffffff",
                 },
               }}
-              sx={{
-                "& .MuiInputBase-input::placeholder": {
-                  color: "rgba(255,255,255,0.5)",
-                  opacity: 1,
-                },
-              }}
+              sx={{ maxWidth: isMobile ? "100%" : 380 }}
             />
+            <SortControls value={sortMode} onChange={setSortMode} />
           </Box>
 
-          {/* Conditional rendering based on screen size */}
-          {isMobile ? (
-            // Mobile: Card layout
-            <Box sx={{ width: "100%" }}>
-              {filteredAndRanked.map((hero, i) => (
-                <HeroCard key={hero.name} hero={hero} rank={i + 1} />
-              ))}
-            </Box>
-          ) : (
-            // Desktop: Table layout
-            <TableContainer
-              component={Paper}
-              elevation={6}
-              sx={{
-                borderRadius: 3,
-                overflow: "visible",
-                position: "relative",
-                background: "rgba(10,10,10,0.55)",
-                boxShadow: (theme) =>
-                  `0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02)`,
-              }}
-            >
-              {/* Bloody overlay */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 0,
-                  pointerEvents: "none",
-                  opacity: 0.25,
-                  backgroundImage: `radial-gradient(circle at 10% 20%, rgba(120,0,0,0.6), transparent 10%), radial-gradient(circle at 80% 40%, rgba(90,0,0,0.5), transparent 8%)`,
-                  mixBlendMode: "multiply",
-                }}
-              />
+          <BarbellDivider />
 
-              <Table sx={{ minWidth: 700, position: "relative", zIndex: 1 }}>
-                <TableHead>
-                  <TableRow
+          {isMobile ? (
+            <Box>
+              {filteredAndRanked.map((hero) => {
+                const isExpanded = expandedHero === hero.name;
+                return (
+                  <Card
+                    key={hero.name}
+                    onClick={() => toggleExpand(hero.name)}
                     sx={{
-                      background: "linear-gradient(90deg,#111,#1b1b1b)",
-                      borderBottom: "1px solid rgba(255,255,255,0.03)",
+                      mb: 2,
+                      cursor: "pointer",
+                      background: "linear-gradient(160deg, #2a2b2d, #131415)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: 1,
+                      p: 0,
+                      position: "relative",
+                      overflow: "hidden",
                     }}
                   >
-                    <TableCell sx={{ color: "#ddd", fontWeight: 700 }}>
+                    <RustOverlay intensity="small" />
+                    <CardContent sx={{ p: 2, position: "relative", zIndex: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          mb: 1.5,
+                        }}
+                      >
+                        <RankBadge rank={hero.originalRank} size="small" />
+                        <Box sx={{ flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontFamily: "'Oswald', sans-serif",
+                              fontWeight: 700,
+                              color: "#fff",
+                              letterSpacing: 0.5,
+                            }}
+                          >
+                            {hero.name}
+                          </Typography>
+                          <Typography
+                            component="div"
+                            sx={{
+                              fontFamily: "'Oswald', sans-serif",
+                              fontWeight: 800,
+                              letterSpacing: 1,
+                              fontSize: "0.85rem",
+                              color: "rgba(255,255,255,0.5)",
+                            }}
+                          >
+                            <Box
+                              sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}
+                            >
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontFamily: "'Oswald', sans-serif",
+                                  fontWeight: sortMode === "total" ? 800 : 500,
+                                  fontSize: "0.85rem",
+                                  color:
+                                    sortMode === "total"
+                                      ? rankColor(hero.originalRank)
+                                      : "rgba(255,255,255,0.6)",
+                                }}
+                              >
+                                Total: {hero.total} kg
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontFamily: "'Oswald', sans-serif",
+                                  fontWeight:
+                                    sortMode === "glPoints" ? 800 : 500,
+                                  fontSize: "0.85rem",
+                                  color:
+                                    sortMode === "glPoints"
+                                      ? rankColor(hero.originalRank)
+                                      : "rgba(255,255,255,0.6)",
+                                }}
+                              >
+                                GL: {hero.glPoints.toFixed(2)}
+                              </Typography>
+                            </Box>
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Squat / Bench / Deadlift shown as a row of equal-width stat blocks */}
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr 1fr",
+                          gap: 1,
+                        }}
+                      >
+                        {LIFT_TYPES.map((type) => (
+                          <Box
+                            key={type}
+                            sx={{
+                              textAlign: "center",
+                              p: 1,
+                              borderRadius: 1,
+                              background:
+                                "linear-gradient(160deg, #232426, #121212)",
+                              border:
+                                sortMode === type
+                                  ? "1px solid rgba(217,70,60,0.5)"
+                                  : "1px solid rgba(255,255,255,0.08)",
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                fontFamily: "'Oswald', sans-serif",
+                                fontSize: "0.65rem",
+                                letterSpacing: 1,
+                                textTransform: "uppercase",
+                                color: "rgba(255,255,255,0.45)",
+                              }}
+                            >
+                              {type}
+                            </Typography>
+                            <Typography sx={statCellSx(sortMode === type)}>
+                              {getLiftValue(hero, type)} kg
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    </CardContent>
+                    <Collapse
+                      in={isExpanded}
+                      sx={{ position: "relative", zIndex: 1 }}
+                    >
+                      <HeroDetail hero={hero} />
+                    </Collapse>
+                  </Card>
+                );
+              })}
+            </Box>
+          ) : (
+            <TableContainer
+              component={Paper}
+              elevation={0}
+              sx={{
+                borderRadius: 1,
+                background: "rgba(10,10,10,0.6)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              <RustOverlay />
+              <Table sx={{ minWidth: 820, position: "relative", zIndex: 1 }}>
+                <TableHead>
+                  <TableRow
+                    sx={{ background: "linear-gradient(90deg,#111,#1b1b1b)" }}
+                  >
+                    <TableCell
+                      sx={{
+                        color: "#999",
+                        fontFamily: "'Oswald', sans-serif",
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
+                    >
                       Rank
                     </TableCell>
-                    <TableCell sx={{ color: "#ddd", fontWeight: 700 }}>
+                    <TableCell
+                      sx={{
+                        color: "#999",
+                        fontFamily: "'Oswald', sans-serif",
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
+                    >
                       Hero
                     </TableCell>
                     <TableCell
                       align="right"
-                      sx={{ color: "#ddd", fontWeight: 700 }}
+                      sx={{
+                        color: sortMode === "Squat" ? "#d9463c" : "#999",
+                        fontFamily: "'Oswald', sans-serif",
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Squat
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        color: sortMode === "Bench" ? "#d9463c" : "#999",
+                        fontFamily: "'Oswald', sans-serif",
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Bench
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        color: sortMode === "Deadlift" ? "#d9463c" : "#999",
+                        fontFamily: "'Oswald', sans-serif",
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Deadlift
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        color: sortMode === "total" ? "#d9463c" : "#999",
+                        fontFamily: "'Oswald', sans-serif",
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
                     >
                       Total
                     </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        color: sortMode === "glPoints" ? "#d9463c" : "#999",
+                        fontFamily: "'Oswald', sans-serif",
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      GL Pts
+                    </TableCell>
                   </TableRow>
                 </TableHead>
-
                 <TableBody>
-                  {filteredAndRanked.map((hero, i) => {
-                    const actualRank =
-                      "originalRank" in hero ? hero.originalRank : i + 1;
+                  {filteredAndRanked.map((hero) => {
+                    const isExpanded = expandedHero === hero.name;
                     return (
-                      <TableRow
-                        key={hero.name}
-                        sx={{
-                          position: "relative",
-                          background:
-                            actualRank === 1
-                              ? "linear-gradient(90deg, rgba(255,215,0,0.08), rgba(0,0,0,0.4))"
-                              : actualRank === 2
-                              ? "linear-gradient(90deg, rgba(192,192,192,0.08), rgba(0,0,0,0.4))"
-                              : actualRank === 3
-                              ? "linear-gradient(90deg, rgba(205,127,50,0.08), rgba(0,0,0,0.4))"
-                              : "linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.35))",
-                          borderBottom: "1px solid rgba(255,255,255,0.03)",
-                          transition: "transform 180ms ease",
-                          "&:hover": {
-                            transform: "translateY(-3px)",
-                            boxShadow: (theme) => "0 12px 40px rgba(0,0,0,0.6)",
-                          },
-                        }}
-                      >
-                        <TableCell>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 2,
-                            }}
-                          >
-                            <RankingNumber rank={actualRank as number} />
-                          </Box>
-                        </TableCell>
-
-                        <TableCell>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              gap: 2,
-                              alignItems: "center",
-                            }}
-                          >
-                            <Box
+                      <React.Fragment key={hero.name}>
+                        <TableRow
+                          onClick={() => toggleExpand(hero.name)}
+                          sx={{
+                            cursor: "pointer",
+                            background: rankRowBg(hero.originalRank),
+                            borderBottom: "1px solid rgba(255,255,255,0.05)",
+                            "&:hover": { background: "rgba(255,255,255,0.04)" },
+                          }}
+                        >
+                          <TableCell>
+                            <RankBadge rank={hero.originalRank} />
+                          </TableCell>
+                          <TableCell>
+                            <Typography
                               sx={{
-                                width: 56,
-                                height: 56,
-                                borderRadius: 1,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: 800,
-                                background:
-                                  "linear-gradient(180deg,#d6d6d6,#9a9a9a)",
-                                color: "#111",
-                                boxShadow: "inset 0 2px 6px rgba(0,0,0,0.5)",
+                                fontFamily: "'Oswald', sans-serif",
+                                fontWeight: 700,
+                                color: "#fff",
                               }}
                             >
-                              {hero.name[0]}
-                            </Box>
-                            <Box>
-                              <Typography sx={{ fontWeight: 700 }}>
-                                {hero.name}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                sx={{ color: "rgba(255,255,255,0.6)" }}
-                              >
-                                {hero.Records.map(
-                                  (r) => `${r.type} ${r.value}kg`
-                                ).join(" • ")}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <Typography
-                            sx={{
-                              fontWeight: 900,
-                              letterSpacing: 1.2,
-                              color:
-                                actualRank === 1
-                                  ? "#FFD700"
-                                  : actualRank === 2
-                                  ? "#C0C0C0"
-                                  : actualRank === 3
-                                  ? "#CD7F32"
-                                  : "#ffd9d9",
-                            }}
-                          >
-                            {hero.total} KG
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
+                              {hero.name}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Typography sx={statCellSx(sortMode === "Squat")}>
+                              {getLiftValue(hero, "Squat")}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Typography sx={statCellSx(sortMode === "Bench")}>
+                              {getLiftValue(hero, "Bench")}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Typography
+                              sx={statCellSx(sortMode === "Deadlift")}
+                            >
+                              {getLiftValue(hero, "Deadlift")}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Typography sx={statCellSx(sortMode === "total")}>
+                              {hero.total}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Typography
+                              sx={statCellSx(sortMode === "glPoints")}
+                            >
+                              {hero.glPoints.toFixed(2)}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell colSpan={7} sx={{ p: 0, border: 0 }}>
+                            <Collapse in={isExpanded}>
+                              <HeroDetail hero={hero} />
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      </React.Fragment>
                     );
                   })}
                 </TableBody>

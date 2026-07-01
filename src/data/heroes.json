@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Kadi",
+    "bodyweight": 110,
+    "sex": "male",
+    "Records": [
+      { "type": "Squat", "value": 230, "videoUrl": "" },
+      { "type": "Bench", "value": 145, "videoUrl": "" },
+      { "type": "Deadlift", "value": 220, "videoUrl": "" }
+    ]
+  },
+  {
+    "name": "Rabah",
+    "bodyweight": 100,
+    "sex": "male",
+    "Records": [
+      { "type": "Squat", "value": 160, "videoUrl": "" },
+      { "type": "Bench", "value": 130, "videoUrl": "" },
+      { "type": "Deadlift", "value": 220, "videoUrl": "" }
+    ]
+  },
+  {
+    "name": "Idir",
+    "bodyweight": 85,
+    "sex": "male",
+    "Records": [
+      { "type": "Squat", "value": 170, "videoUrl": "" },
+      { "type": "Bench", "value": 110, "videoUrl": "" },
+      { "type": "Deadlift", "value": 190, "videoUrl": "" }
+    ]
+  }
+]
