@@ -11,12 +11,12 @@
   },
   {
     "name": "Rabah",
-    "bodyweight": 100,
+    "bodyweight": 98,
     "sex": "male",
     "Records": [
-      { "type": "Squat", "value": 160, "videoUrl": "" },
-      { "type": "Bench", "value": 130, "videoUrl": "" },
-      { "type": "Deadlift", "value": 220, "videoUrl": "" }
+      { "type": "Squat", "value": 155, "videoUrl": "" },
+      { "type": "Bench", "value": 125, "videoUrl": "" },
+      { "type": "Deadlift", "value": 230, "videoUrl": "" }
     ]
   },
   {
