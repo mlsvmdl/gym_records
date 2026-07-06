@@ -1,32 +1,80 @@
 [
   {
     "name": "Kadi",
-    "bodyweight": 110,
     "sex": "male",
-    "Records": [
-      { "type": "Squat", "value": 230, "videoUrl": "" },
-      { "type": "Bench", "value": 145, "videoUrl": "" },
-      { "type": "Deadlift", "value": 220, "videoUrl": "" }
+    "history": [
+      {
+        "date": "2026-07-07",
+        "bodyweight": 110,
+        "Squat": 230,
+        "Bench": 155,
+        "Deadlift": 240
+      }
     ]
   },
   {
     "name": "Rabah",
-    "bodyweight": 98,
     "sex": "male",
-    "Records": [
-      { "type": "Squat", "value": 155, "videoUrl": "" },
-      { "type": "Bench", "value": 125, "videoUrl": "" },
-      { "type": "Deadlift", "value": 230, "videoUrl": "" }
+    "history": [
+      {
+        "date": "2026-07-07",
+        "bodyweight": 98,
+        "Squat": 155,
+        "Bench": 125,
+        "Deadlift": 230
+      }
     ]
   },
   {
     "name": "Idir",
-    "bodyweight": 85,
     "sex": "male",
-    "Records": [
-      { "type": "Squat", "value": 170, "videoUrl": "" },
-      { "type": "Bench", "value": 110, "videoUrl": "" },
-      { "type": "Deadlift", "value": 190, "videoUrl": "" }
+    "history": [
+      {
+        "date": "2026-07-07",
+        "bodyweight": 80,
+        "Squat": 170,
+        "Bench": 120,
+        "Deadlift": 190
+      }
+    ]
+  },
+  {
+    "name": "Sofiane",
+    "sex": "male",
+    "history": [
+      {
+        "date": "2026-07-07",
+        "bodyweight": 72,
+        "Squat": 100,
+        "Bench": 85,
+        "Deadlift": 150
+      }
+    ]
+  },
+  {
+    "name": "Peter",
+    "sex": "male",
+    "history": [
+      {
+        "date": "2026-07-07",
+        "bodyweight": 61,
+        "Squat": 0,
+        "Bench": 80,
+        "Deadlift": 130
+      }
+    ]
+  },
+  {
+    "name": "Mokh",
+    "sex": "male",
+    "history": [
+      {
+        "date": "2026-07-07",
+        "bodyweight": 65,
+        "Squat": 140,
+        "Bench": 85,
+        "Deadlift": 190
+      }
     ]
   }
 ]

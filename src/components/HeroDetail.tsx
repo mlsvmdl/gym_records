@@ -1,115 +1,254 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
-import { Hero, LiftType } from "../types";
+import { Box, Typography, Divider } from "@mui/material";
+import { Hero, LiftType } from "../App";
+import { calculateGLPoints } from "../utils/glPoints";
 
 const LIFT_ORDER: LiftType[] = ["Squat", "Bench", "Deadlift"];
 
-function getYouTubeEmbedUrl(url?: string): string | null {
-  if (!url) return null;
-  const match = url.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/,
-  );
-  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
+  const sessions = [...(hero.history ?? [])].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+
   return (
     <Box
       sx={{
         p: 2,
-        display: "grid",
-        gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-        gap: 2,
         background:
           "linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75))",
         border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 1,
       }}
     >
-      {LIFT_ORDER.map((type) => {
-        const record = hero.Records.find((r) => r.type === type);
-        const embedUrl = getYouTubeEmbedUrl(record?.videoUrl);
-        return (
-          <Box
-            key={type}
+      <Typography
+        sx={{
+          fontFamily: "'Oswald', sans-serif",
+          fontSize: "0.7rem",
+          letterSpacing: 1,
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.45)",
+          mb: 1,
+        }}
+      >
+        Meet History
+      </Typography>
+
+      {sessions.length === 0 ? (
+        <Box
+          sx={{
+            py: 3,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 1,
+            background:
+              "repeating-linear-gradient(45deg, #1a1a1a, #1a1a1a 8px, #222 8px, #222 16px)",
+            border: "1px dashed rgba(255,255,255,0.15)",
+          }}
+        >
+          <Typography
             sx={{
-              p: 1.5,
-              borderRadius: 1,
-              background: "linear-gradient(160deg, #2a2b2d, #141516)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              boxShadow:
-                "inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -2px 4px rgba(0,0,0,0.6)",
+              color: "rgba(255,255,255,0.4)",
+              fontSize: "0.75rem",
+              textTransform: "uppercase",
+              letterSpacing: 1,
             }}
           >
-            <Typography
-              sx={{
-                fontFamily: "'Oswald', sans-serif",
-                letterSpacing: 1,
-                textTransform: "uppercase",
-                color: "#c9463c",
-                fontWeight: 600,
-                fontSize: "0.8rem",
-                mb: 0.5,
-              }}
-            >
-              {type}
+            No history yet
+          </Typography>
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            borderRadius: 1,
+            border: "1px solid rgba(255,255,255,0.06)",
+            overflow: "hidden",
+          }}
+        >
+          {/* Header row */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 0.8fr repeat(3, 1fr) 1fr 1fr",
+              px: 1.5,
+              py: 0.75,
+              background: "linear-gradient(90deg,#111,#1b1b1b)",
+            }}
+          >
+            <Typography sx={headerCellSx}>Date</Typography>
+            <Typography align="right" sx={headerCellSx}>
+              BW
             </Typography>
-            <Typography sx={{ color: "#fff", fontWeight: 700, mb: 1 }}>
-              {record?.value ?? 0} kg
+            {LIFT_ORDER.map((type) => (
+              <Typography key={type} align="right" sx={headerCellSx}>
+                {type}
+              </Typography>
+            ))}
+            <Typography align="right" sx={headerCellSx}>
+              Total
             </Typography>
-            {embedUrl ? (
-              <Box
-                sx={{
-                  position: "relative",
-                  pt: "56.25%",
-                  borderRadius: 1,
-                  overflow: "hidden",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                }}
-              >
-                <iframe
-                  src={embedUrl}
-                  title={`${hero.name} ${type}`}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    border: 0,
-                  }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  height: 100,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 1,
-                  background:
-                    "repeating-linear-gradient(45deg, #1a1a1a, #1a1a1a 8px, #222 8px, #222 16px)",
-                  border: "1px dashed rgba(255,255,255,0.15)",
-                }}
-              >
-                <Typography
+            <Typography align="right" sx={headerCellSx}>
+              GL
+            </Typography>
+          </Box>
+
+          {sessions.map((session, idx) => {
+            const prev = sessions[idx + 1]; // chronologically earlier session
+            const total = session.Squat + session.Bench + session.Deadlift;
+            const prevTotal = prev
+              ? prev.Squat + prev.Bench + prev.Deadlift
+              : null;
+            const totalDelta = prevTotal !== null ? total - prevTotal : null;
+            const glPoints = calculateGLPoints(
+              total,
+              session.bodyweight,
+              hero.sex,
+            );
+            const isLatest = idx === 0;
+
+            return (
+              <Box key={session.date}>
+                <Box
                   sx={{
-                    color: "rgba(255,255,255,0.4)",
-                    fontSize: "0.75rem",
-                    textTransform: "uppercase",
-                    letterSpacing: 1,
+                    display: "grid",
+                    gridTemplateColumns: "1fr 0.8fr repeat(3, 1fr) 1fr 1fr",
+                    px: 1.5,
+                    py: 1,
+                    alignItems: "center",
+                    background: isLatest
+                      ? "rgba(217,70,60,0.08)"
+                      : "transparent",
                   }}
                 >
-                  No footage available
-                </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: "0.8rem",
+                      fontWeight: isLatest ? 700 : 500,
+                      color: isLatest ? "#fff" : "rgba(255,255,255,0.6)",
+                    }}
+                  >
+                    {formatDate(session.date)}
+                  </Typography>
+
+                  <Typography
+                    align="right"
+                    sx={{
+                      fontSize: "0.75rem",
+                      color: "rgba(255,255,255,0.55)",
+                    }}
+                  >
+                    {session.bodyweight} kg
+                  </Typography>
+
+                  {LIFT_ORDER.map((type) => {
+                    const value = session[type];
+                    const prevValue = prev ? prev[type] : null;
+                    const delta = prevValue !== null ? value - prevValue : null;
+                    return (
+                      <Box
+                        key={type}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "baseline",
+                          gap: 0.5,
+                        }}
+                      >
+                        <Typography
+                          align="right"
+                          sx={{
+                            fontSize: "0.8rem",
+                            fontWeight: isLatest ? 700 : 500,
+                            color: isLatest ? "#fff" : "rgba(255,255,255,0.7)",
+                          }}
+                        >
+                          {value}
+                        </Typography>
+                        {delta !== null && delta !== 0 && (
+                          <Typography
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 600,
+                              color: delta > 0 ? "#5fbf6b" : "#d9463c",
+                            }}
+                          >
+                            {delta > 0 ? "+" : ""}
+                            {delta}
+                          </Typography>
+                        )}
+                      </Box>
+                    );
+                  })}
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "baseline",
+                      gap: 0.5,
+                    }}
+                  >
+                    <Typography
+                      align="right"
+                      sx={{
+                        fontSize: "0.8rem",
+                        fontWeight: 700,
+                        color: isLatest ? "#c9463c" : "rgba(255,255,255,0.8)",
+                      }}
+                    >
+                      {total}
+                    </Typography>
+                    {totalDelta !== null && totalDelta !== 0 && (
+                      <Typography
+                        sx={{
+                          fontSize: "0.65rem",
+                          fontWeight: 600,
+                          color: totalDelta > 0 ? "#5fbf6b" : "#d9463c",
+                        }}
+                      >
+                        {totalDelta > 0 ? "+" : ""}
+                        {totalDelta}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Typography
+                    align="right"
+                    sx={{
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      color: "rgba(255,255,255,0.65)",
+                    }}
+                  >
+                    {glPoints.toFixed(2)}
+                  </Typography>
+                </Box>
+                {idx < sessions.length - 1 && (
+                  <Divider sx={{ borderColor: "rgba(255,255,255,0.05)" }} />
+                )}
               </Box>
-            )}
-          </Box>
-        );
-      })}
+            );
+          })}
+        </Box>
+      )}
     </Box>
   );
+};
+
+const headerCellSx = {
+  fontFamily: "'Oswald', sans-serif",
+  fontSize: "0.65rem",
+  letterSpacing: 1,
+  textTransform: "uppercase" as const,
+  color: "rgba(255,255,255,0.45)",
 };

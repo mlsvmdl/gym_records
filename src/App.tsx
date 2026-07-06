@@ -20,7 +20,6 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import { ThemeProvider } from "@mui/material/styles";
 import { darkTheme } from "./theme";
-import { Hero, SortMode, LiftType } from "./types";
 import { calculateGLPoints } from "./utils/glPoints";
 import { RankBadge } from "./components/RankBadge";
 import { HeroDetail } from "./components/HeroDetail";
@@ -30,12 +29,50 @@ import { BarbellDivider } from "./components/BarbellDivider";
 import { AtmosphereLayer } from "./components/AtmosphereLayer";
 import heroesSeed from "./data/heroes.json";
 
+// ---- Types (colocated here, no separate types.ts) ----
+export type LiftType = "Squat" | "Bench" | "Deadlift";
+export type SortMode = LiftType | "total" | "glPoints";
+
+// One meet/session: all three lifts + bodyweight recorded on the same date
+export interface LiftSession {
+  date: string; // "YYYY-MM-DD"
+  bodyweight: number;
+  Squat: number;
+  Bench: number;
+  Deadlift: number;
+}
+
+export interface Hero {
+  name: string;
+  sex: "male" | "female";
+  history: LiftSession[];
+}
+// -------------------------------------------------------
+
 const LIFT_TYPES: LiftType[] = ["Squat", "Bench", "Deadlift"];
 
-const getLiftValue = (hero: Hero, type: LiftType) =>
-  hero.Records.find((r) => r.type === type)?.value ?? 0;
+// The "current" state for a hero is whatever was logged in the most recent session
+const getLatestSession = (hero: Hero): LiftSession | null => {
+  if (!hero.history || hero.history.length === 0) return null;
+  return [...hero.history].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  )[0];
+};
 
-const computeTotal = (h: Hero) => h.Records.reduce((s, r) => s + r.value, 0);
+const getLiftValue = (hero: Hero, type: LiftType) => {
+  const latest = getLatestSession(hero);
+  return latest ? latest[type] : 0;
+};
+
+const computeTotal = (hero: Hero) => {
+  const latest = getLatestSession(hero);
+  return latest ? latest.Squat + latest.Bench + latest.Deadlift : 0;
+};
+
+const getCurrentBodyweight = (hero: Hero) => {
+  const latest = getLatestSession(hero);
+  return latest ? latest.bodyweight : 0;
+};
 
 interface RankedHero extends Hero {
   total: number;
@@ -70,7 +107,6 @@ const rankRowBg = (rank: number) =>
         ? "linear-gradient(90deg, rgba(180,122,78,0.08), rgba(0,0,0,0.4))"
         : "linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.35))";
 
-// A stat column is "active" (highlighted) when it matches the current sort mode
 const statCellSx = (isActive: boolean) => ({
   fontFamily: "'Oswald', sans-serif",
   fontWeight: isActive ? 800 : 500,
@@ -88,11 +124,15 @@ const App: React.FC = () => {
 
   const computed = useMemo(
     () =>
-      heroes.map((h) => ({
-        ...h,
-        total: computeTotal(h),
-        glPoints: calculateGLPoints(computeTotal(h), h.bodyweight, h.sex),
-      })),
+      heroes.map((h) => {
+        const total = computeTotal(h);
+        const bodyweight = getCurrentBodyweight(h);
+        return {
+          ...h,
+          total,
+          glPoints: calculateGLPoints(total, bodyweight, h.sex),
+        };
+      }),
     [heroes],
   );
 
@@ -282,7 +322,6 @@ const App: React.FC = () => {
                         </Box>
                       </Box>
 
-                      {/* Squat / Bench / Deadlift shown as a row of equal-width stat blocks */}
                       <Box
                         sx={{
                           display: "grid",
