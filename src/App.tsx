@@ -51,7 +51,8 @@ export interface Hero {
 
 const LIFT_TYPES: LiftType[] = ["Squat", "Bench", "Deadlift"];
 
-// The "current" state for a hero is whatever was logged in the most recent session
+// The "current" bodyweight is whatever was logged in the most recent session,
+// since that's the number that should feed into GL points today.
 const getLatestSession = (hero: Hero): LiftSession | null => {
   if (!hero.history || hero.history.length === 0) return null;
   return [...hero.history].sort(
@@ -59,15 +60,17 @@ const getLatestSession = (hero: Hero): LiftSession | null => {
   )[0];
 };
 
+// The leaderboard always shows a hero's all-time PR for each lift, regardless
+// of which session it happened in. Expanding a row shows how they got there
+// via hero.history (handled inside HeroDetail).
 const getLiftValue = (hero: Hero, type: LiftType) => {
-  const latest = getLatestSession(hero);
-  return latest ? latest[type] : 0;
+  if (!hero.history || hero.history.length === 0) return 0;
+  return Math.max(...hero.history.map((session) => session[type]));
 };
 
-const computeTotal = (hero: Hero) => {
-  const latest = getLatestSession(hero);
-  return latest ? latest.Squat + latest.Bench + latest.Deadlift : 0;
-};
+// All-time total = sum of each lift's all-time best, not a single session's total.
+const computeTotal = (hero: Hero) =>
+  LIFT_TYPES.reduce((sum, type) => sum + getLiftValue(hero, type), 0);
 
 const getCurrentBodyweight = (hero: Hero) => {
   const latest = getLatestSession(hero);
