@@ -1,6 +1,6 @@
 export type Sex = "male" | "female";
 export type LiftType = "Squat" | "Bench" | "Deadlift";
-export type SortMode = LiftType | "total" | "glPoints";
+export type SortMode = LiftType | "total" | "dots";
 
 // One meet/session: all three lifts + bodyweight recorded on the same date
 export interface LiftSession {
@@ -19,6 +19,6 @@ export interface Hero {
 
 export interface RankedHero extends Hero {
   total: number;
-  glPoints: number;
+  dots: number;
   originalRank: number;
 }

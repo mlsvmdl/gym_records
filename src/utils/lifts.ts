@@ -3,7 +3,7 @@ import { Hero, LiftSession, LiftType, SortMode } from "../types";
 export const LIFT_TYPES: LiftType[] = ["Squat", "Bench", "Deadlift"];
 
 // The "current" bodyweight is whatever was logged in the most recent session,
-// since that's the number that should feed into GL points today.
+// since that's the number that should feed into DOTS today.
 const getLatestSession = (hero: Hero): LiftSession | null => {
   if (!hero.history || hero.history.length === 0) return null;
   return [...hero.history].sort(
@@ -29,11 +29,11 @@ export const getCurrentBodyweight = (hero: Hero) => {
 };
 
 export const getSortValue = (
-  hero: Hero & { total: number; glPoints: number },
+  hero: Hero & { total: number; dots: number },
   mode: SortMode,
 ): number => {
   if (mode === "total") return hero.total;
-  if (mode === "glPoints") return hero.glPoints;
+  if (mode === "dots") return hero.dots;
   return getLiftValue(hero, mode);
 };
 
@@ -42,8 +42,8 @@ export const METRIC_LABEL: Record<SortMode, string> = {
   Squat: "kg squat",
   Bench: "kg bench",
   Deadlift: "kg deadlift",
-  glPoints: "GL points",
+  dots: "DOTS",
 };
 
 export const formatMetric = (value: number, mode: SortMode) =>
-  mode === "glPoints" ? value.toFixed(2) : Math.round(value).toString();
+  mode === "dots" ? value.toFixed(2) : Math.round(value).toString();

@@ -23,14 +23,14 @@ const TOP3_COLOR: Record<number, string> = {
 
 // Edge strip: red when opened, metal colour for the top three, otherwise none
 const stripColor = (rank: number, open: boolean) =>
-  open ? IRON.bloodText : TOP3_COLOR[rank] ?? "transparent";
+  open ? IRON.bloodText : (TOP3_COLOR[rank] ?? "transparent");
 
 const STAT_COLUMNS: { mode: SortMode; label: string; short: string }[] = [
   { mode: "Squat", label: "Squat", short: "SQ" },
   { mode: "Bench", label: "Bench", short: "BP" },
   { mode: "Deadlift", label: "Deadlift", short: "DL" },
   { mode: "total", label: "Total", short: "TOT" },
-  { mode: "glPoints", label: "GL Pts", short: "GL" },
+  { mode: "dots", label: "DOTS", short: "DOTS" },
 ];
 
 // Full-height red band down the active column (layered as an image so hover
@@ -103,7 +103,9 @@ const LeaderboardTable: React.FC<LeaderboardProps> = ({
       >
         <TableHead>
           <TableRow>
-            <TableCell sx={{ ...labelSx, width: 72, letterSpacing: 2 }}>Rank</TableCell>
+            <TableCell sx={{ ...labelSx, width: 72, letterSpacing: 2 }}>
+              Rank
+            </TableCell>
             <TableCell sx={{ ...labelSx, letterSpacing: 2 }}>Hero</TableCell>
             {STAT_COLUMNS.map(({ mode, label }) => (
               <TableCell
@@ -122,7 +124,10 @@ const LeaderboardTable: React.FC<LeaderboardProps> = ({
             ))}
           </TableRow>
           <TableRow aria-hidden>
-            <TableCell colSpan={7} sx={{ p: 0, height: 3, background: IRON.blood }} />
+            <TableCell
+              colSpan={7}
+              sx={{ p: 0, height: 3, background: IRON.blood }}
+            />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -141,17 +146,23 @@ const LeaderboardTable: React.FC<LeaderboardProps> = ({
                       py: 1.25,
                       boxShadow: SEAM,
                       borderBottom: "2px solid #000",
-                      backgroundColor: open ? "rgba(163,16,26,0.08)" : "transparent",
-                      transition: "transform 120ms ease, background-color 120ms ease",
+                      backgroundColor: open
+                        ? "rgba(163,16,26,0.08)"
+                        : "transparent",
+                      transition:
+                        "transform 120ms ease, background-color 120ms ease",
                     },
-                    "& td:first-of-type": { boxShadow: `inset 5px 0 0 ${strip}, ${SEAM}` },
+                    "& td:first-of-type": {
+                      boxShadow: `inset 5px 0 0 ${strip}, ${SEAM}`,
+                    },
                     "&:hover td, &:focus-visible td": {
                       backgroundColor: "rgba(163,16,26,0.12)",
                       transform: "translateX(4px)",
                     },
-                    "&:hover td:first-of-type, &:focus-visible td:first-of-type": {
-                      boxShadow: `inset 5px 0 0 ${IRON.bloodText}, ${SEAM}`,
-                    },
+                    "&:hover td:first-of-type, &:focus-visible td:first-of-type":
+                      {
+                        boxShadow: `inset 5px 0 0 ${IRON.bloodText}, ${SEAM}`,
+                      },
                   }}
                 >
                   <TableCell>
@@ -175,11 +186,17 @@ const LeaderboardTable: React.FC<LeaderboardProps> = ({
                     <TableCell
                       key={mode}
                       align="right"
-                      sx={{ backgroundImage: sortMode === mode ? BAND : "none" }}
+                      sx={{
+                        backgroundImage: sortMode === mode ? BAND : "none",
+                      }}
                     >
                       <Typography
                         component="span"
-                        sx={statNumberSx(sortMode === mode, "1.45rem", "1.8rem")}
+                        sx={statNumberSx(
+                          sortMode === mode,
+                          "1.45rem",
+                          "1.8rem",
+                        )}
                       >
                         {formatMetric(getSortValue(hero, mode), mode)}
                       </Typography>
@@ -219,19 +236,27 @@ const LeaderboardCards: React.FC<LeaderboardProps> = ({
           ref={register(hero.name)}
           shadow={5}
           rivetSize={7}
-          sx={{ overflow: "hidden", borderLeft: `6px solid ${strip === "transparent" ? "#000" : strip}` }}
+          sx={{
+            overflow: "hidden",
+            borderLeft: `6px solid ${strip === "transparent" ? "#000" : strip}`,
+          }}
         >
           <Box
             {...toggleProps(open, () => onToggle(hero.name))}
             sx={{
-              p: 2,
+              p: { xs: 1.5, sm: 2 },
               cursor: "pointer",
               outline: "none",
               "&:focus-visible": { backgroundColor: "rgba(163,16,26,0.12)" },
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Typography sx={{ ...rankNumberSx(hero.originalRank, "2.2rem"), minWidth: 30 }}>
+              <Typography
+                sx={{
+                  ...rankNumberSx(hero.originalRank, "2.2rem"),
+                  minWidth: 30,
+                }}
+              >
                 {hero.originalRank}
               </Typography>
               <Typography
@@ -253,7 +278,14 @@ const LeaderboardCards: React.FC<LeaderboardProps> = ({
                 <Typography sx={statNumberSx(true, "2rem", "2rem")}>
                   {formatMetric(getSortValue(hero, sortMode), sortMode)}
                 </Typography>
-                <Typography sx={{ ...labelSx, fontSize: "0.6rem", letterSpacing: 1.5, mt: 0.25 }}>
+                <Typography
+                  sx={{
+                    ...labelSx,
+                    fontSize: "0.6rem",
+                    letterSpacing: 1.5,
+                    mt: 0.25,
+                  }}
+                >
                   {METRIC_LABEL[sortMode]}
                 </Typography>
               </Box>
@@ -275,8 +307,10 @@ const LeaderboardCards: React.FC<LeaderboardProps> = ({
                   sx={{
                     textAlign: "center",
                     py: 0.75,
+                    px: 0.25,
                     borderLeft: i > 0 ? "2px solid #000" : 0,
-                    boxShadow: i > 0 ? "inset 1px 0 0 rgba(232,224,208,0.05)" : "none",
+                    boxShadow:
+                      i > 0 ? "inset 1px 0 0 rgba(232,224,208,0.05)" : "none",
                     backgroundImage: sortMode === mode ? BAND : "none",
                   }}
                 >
@@ -285,12 +319,15 @@ const LeaderboardCards: React.FC<LeaderboardProps> = ({
                       ...labelSx,
                       fontSize: "0.6rem",
                       letterSpacing: 1.5,
-                      color: sortMode === mode ? IRON.bloodText : IRON.boneFaint,
+                      color:
+                        sortMode === mode ? IRON.bloodText : IRON.boneFaint,
                     }}
                   >
                     {short}
                   </Typography>
-                  <Typography sx={statNumberSx(sortMode === mode, "1.2rem", "1.2rem")}>
+                  <Typography
+                    sx={statNumberSx(sortMode === mode, "1.1rem", "1.1rem")}
+                  >
                     {formatMetric(getSortValue(hero, mode), mode)}
                   </Typography>
                 </Box>
@@ -306,7 +343,7 @@ const LeaderboardCards: React.FC<LeaderboardProps> = ({
   </Box>
 );
 
-export const Leaderboard: React.FC<LeaderboardProps & { isMobile: boolean }> = ({
-  isMobile,
-  ...props
-}) => (isMobile ? <LeaderboardCards {...props} /> : <LeaderboardTable {...props} />);
+export const Leaderboard: React.FC<
+  LeaderboardProps & { isMobile: boolean }
+> = ({ isMobile, ...props }) =>
+  isMobile ? <LeaderboardCards {...props} /> : <LeaderboardTable {...props} />;

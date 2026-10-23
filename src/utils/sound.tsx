@@ -14,7 +14,9 @@ const readSoundPref = () => {
 const SoundContext = createContext({ soundOn: false, toggleSound: () => {} });
 
 // Sound is off by default; the choice is remembered per browser
-export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [soundOn, setSoundOn] = useState(readSoundPref);
 
   const toggleSound = () => {

@@ -1,5 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
+import { FONTS } from "../theme";
 
 const CrownIcon: React.FC = () => (
   <svg viewBox="0 0 100 70" width="65%" height="65%">
@@ -142,7 +143,7 @@ export const RankBadge: React.FC<{
         alignItems: "center",
         justifyContent: "center",
         fontWeight: 800,
-        fontFamily: "'Oswald', 'Helvetica Neue', sans-serif",
+        fontFamily: FONTS.number,
         fontSize: size === "small" ? 16 : 19,
         position: "relative",
         transition: "transform 150ms ease, filter 150ms ease",

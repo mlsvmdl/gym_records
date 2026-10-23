@@ -4,13 +4,15 @@ import { SortMode } from "../types";
 import { FONTS, IRON } from "../theme";
 import { useCountUp } from "../utils/motion";
 import { formatMetric, METRIC_LABEL } from "../utils/lifts";
-import { playClang, playTick } from "../utils/clang";
+import { playSlam, playTick } from "../utils/clang";
 import { useSound } from "../utils/sound";
 import { RankBadge } from "./RankBadge";
 import { BloodSplatter } from "./BloodSplatter";
 import { IronPlate, PLATE_BG } from "./IronPlate";
+import { ImpactCrack } from "./ImpactCrack";
+import { BarbedCorners } from "./BarbedCorners";
 
-const TICK_GAP_MS = 60; // ~16 ticks over the 1s count, like a ratchet
+const TICK_GAP_MS = 70; // ~14 clicks over the 1s count, like a ratchet
 
 const SHAKE: Keyframe[] = [
   { transform: "none" },
@@ -74,7 +76,7 @@ const PodiumCard: React.FC<{
 
   const shown = useCountUp(value, isFirst ? 1000 : 800, () => {
     if (!isFirst) return;
-    if (soundOn) playClang();
+    if (soundOn) playSlam();
     numberRef.current?.animate(
       [{ transform: "scale(1.35)" }, { transform: "scale(1)" }],
       { duration: 260, easing: "cubic-bezier(.3,1.6,.5,1)" },
@@ -89,7 +91,7 @@ const PodiumCard: React.FC<{
     const now = performance.now();
     if (now - lastTick.current < TICK_GAP_MS) return;
     lastTick.current = now;
-    playTick(shown / value);
+    playTick();
   }, [shown, value, isFirst, soundOn]);
 
   return (
@@ -127,6 +129,7 @@ const PodiumCard: React.FC<{
         {rank}
       </Typography>
 
+      {isFirst && <BarbedCorners />}
       {isFirst && (
         <Box
           sx={{
@@ -165,8 +168,8 @@ const PodiumCard: React.FC<{
             component="span"
             sx={{
               display: "inline-block",
-              fontFamily: FONTS.numberBig,
-              fontWeight: 400,
+              fontFamily: FONTS.number,
+              fontWeight: 800,
               fontVariantNumeric: "tabular-nums",
               fontSize: isFirst
                 ? { xs: "3rem", md: "4rem" }
@@ -179,6 +182,7 @@ const PodiumCard: React.FC<{
             {formatMetric(shown, metric)}
           </Typography>
           {puffs > 0 && <ChalkPuff key={puffs} />}
+          {isFirst && puffs > 0 && <ImpactCrack key={`crack${puffs}`} />}
         </Box>
         <Typography
           sx={{

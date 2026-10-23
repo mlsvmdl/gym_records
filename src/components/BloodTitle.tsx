@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, GlobalStyles } from "@mui/material";
+import { Box, GlobalStyles, Typography } from "@mui/material";
 import { FONTS, IRON } from "../theme";
 
 // x / stroke width / length in the 600x80 drip viewBox. `fall` drips shed a drop now and then.
@@ -47,7 +47,65 @@ const titleStyles = {
     transformOrigin: "center",
     animation: "btDropFall 6s ease-in infinite",
   },
+  // Bad-tape glitch: two offset copies of the title flash in sliced bands for
+  // a split second every ~7s (steps(1) so they jump, never tween)
+  "@keyframes btGlitchA": {
+    "0%, 92%, 95.5%, 100%": { opacity: 0, transform: "none" },
+    "92.5%": {
+      opacity: 0.9,
+      transform: "translate(-6px, 2px)",
+      clipPath: "inset(8% 0 58% 0)",
+    },
+    "93.5%": {
+      opacity: 0.9,
+      transform: "translate(5px, -1px)",
+      clipPath: "inset(55% 0 12% 0)",
+    },
+    "94.5%": {
+      opacity: 0.8,
+      transform: "translate(-3px, 0)",
+      clipPath: "inset(30% 0 45% 0)",
+    },
+  },
+  "@keyframes btGlitchB": {
+    "0%, 92%, 95.5%, 100%": { opacity: 0, transform: "none" },
+    "92.5%": {
+      opacity: 0.85,
+      transform: "translate(6px, -2px)",
+      clipPath: "inset(62% 0 6% 0)",
+    },
+    "93.5%": {
+      opacity: 0.85,
+      transform: "translate(-7px, 1px)",
+      clipPath: "inset(18% 0 50% 0)",
+    },
+    "94.5%": {
+      opacity: 0.7,
+      transform: "translate(3px, 1px)",
+      clipPath: "inset(70% 0 2% 0)",
+    },
+  },
+  ".bt-glitch::before, .bt-glitch::after": {
+    content: "attr(data-text)",
+    position: "absolute",
+    inset: 0,
+    padding: "0 16px",
+    background: "none",
+    pointerEvents: "none",
+    opacity: 0,
+  },
+  ".bt-glitch::before": {
+    WebkitTextFillColor: IRON.bone,
+    color: IRON.bone,
+    animation: "btGlitchA 7.3s steps(1) infinite",
+  },
+  ".bt-glitch::after": {
+    WebkitTextFillColor: IRON.bloodText,
+    color: IRON.bloodText,
+    animation: "btGlitchB 7.3s steps(1) infinite",
+  },
   "@media (prefers-reduced-motion: reduce)": {
+    ".bt-glitch::before, .bt-glitch::after": { display: "none" },
     ".bt-flicker, .bt-drip, .bt-bulb": {
       animation: "none",
       strokeDashoffset: 0,
@@ -127,11 +185,19 @@ export const BloodTitle: React.FC = () => (
     <Box
       component="h1"
       className="bt-flicker"
-      sx={{ m: 0, display: "flex", flexDirection: "column", alignItems: "center" }}
+      sx={{
+        m: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
     >
       <Box
         component="span"
+        className="bt-glitch"
+        data-text="Sougueur"
         sx={{
+          position: "relative",
           fontFamily: FONTS.metal,
           fontWeight: 400,
           fontSize: "clamp(3.2rem, 16vw, 8.5rem)",
@@ -225,6 +291,43 @@ export const BloodTitle: React.FC = () => (
           />
         ))}
       </g>
+    </Box>
+
+    {/* Ronnie's war cry, set like an album-cover tagline */}
+    <Box component="figure" sx={{ m: 0, mt: 1 }}>
+      <Typography
+        component="blockquote"
+        sx={{
+          m: 0,
+          fontFamily: FONTS.stat,
+          fontWeight: 700,
+          fontSize: "clamp(0.8rem, 3vw, 1.1rem)",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: IRON.bone,
+          textShadow: "2px 2px 0 #000",
+        }}
+      >
+        “Yeah buddy!{" "}
+        <Box component="span" sx={{ color: IRON.bloodText }}>
+          Light weight
+        </Box>
+        , baby!”
+      </Typography>
+      <Typography
+        component="figcaption"
+        sx={{
+          mt: 0.5,
+          fontFamily: FONTS.stat,
+          fontSize: "0.65rem",
+          letterSpacing: "0.4em",
+          textTransform: "uppercase",
+          color: IRON.boneDim,
+          textShadow: "2px 2px 0 #000",
+        }}
+      >
+        — Ronnie Coleman
+      </Typography>
     </Box>
   </Box>
 );

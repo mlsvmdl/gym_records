@@ -13,11 +13,11 @@ const CORNERS = [
   { bottom: 0, right: 0 },
 ];
 
-const Rivet: React.FC<{ size: number; inset: number; at: (typeof CORNERS)[number] }> = ({
-  size,
-  inset,
-  at,
-}) => (
+const Rivet: React.FC<{
+  size: number;
+  inset: number;
+  at: (typeof CORNERS)[number];
+}> = ({ size, inset, at }) => (
   <Box
     aria-hidden
     sx={{
@@ -45,7 +45,15 @@ export const IronPlate: React.FC<{
   ref?: React.Ref<HTMLDivElement>;
   onClick?: () => void;
   component?: React.ElementType;
-}> = ({ children, shadow = 8, rivetSize = 9, sx, ref, onClick, component = "div" }) => (
+}> = ({
+  children,
+  shadow = 8,
+  rivetSize = 9,
+  sx,
+  ref,
+  onClick,
+  component = "div",
+}) => (
   <Box
     ref={ref}
     component={component}

@@ -17,13 +17,14 @@ export const IRON = {
   rust: "#8a3a24",
 };
 
+// Three roles, nothing else:
+//   metal  - title, lifter names, section headings
+//   number - every number (podium, table, barbells, meet history, rank badges)
+//   stat   - every label and piece of UI text
 export const FONTS = {
   metal: "'Metal Mania', 'Oswald', serif",
-  stat: "'Oswald', 'Helvetica Neue', sans-serif",
-  // Big hero numbers (podium, barbell weights): chipped, stamped look
-  numberBig: "'Rubik Dirt', 'Oswald', sans-serif",
-  // Table/data numbers: plate stencil, condensed so columns fit on phones
   number: "'Big Shoulders Stencil', 'Oswald', sans-serif",
+  stat: "'Oswald', 'Helvetica Neue', sans-serif",
 };
 
 // Hard offset shadow, no blur: the brutalist "stamped" look

@@ -1,12 +1,7 @@
 import React, { useId } from "react";
 import { Box, GlobalStyles } from "@mui/material";
 import { IRON } from "../theme";
-
-// Deterministic pseudo-random in [0,1) so the splatter is identical every render
-const rand = (i: number) => {
-  const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-};
+import { seeded as rand } from "../utils/random";
 
 const BLOBS = Array.from({ length: 7 }, (_, i) => ({
   cx: 100 + (rand(i) - 0.5) * 44,

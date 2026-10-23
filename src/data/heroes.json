@@ -16,6 +16,13 @@
         "Squat": 250,
         "Bench": 155,
         "Deadlift": 250
+      },
+      {
+        "date": "2026-10-23",
+        "bodyweight": 110,
+        "Squat": 260,
+        "Bench": 160,
+        "Deadlift": 260
       }
     ]
   },
@@ -56,6 +63,13 @@
         "Squat": 190,
         "Bench": 125,
         "Deadlift": 200
+      },
+      {
+        "date": "2026-10-23",
+        "bodyweight": 80,
+        "Squat": 205,
+        "Bench": 130,
+        "Deadlift": 220
       }
     ]
   },
@@ -76,6 +90,13 @@
         "Squat": 100,
         "Bench": 90,
         "Deadlift": 150
+      },
+      {
+        "date": "2026-10-23",
+        "bodyweight": 68,
+        "Squat": 90,
+        "Bench": 90,
+        "Deadlift": 170
       }
     ]
   },
@@ -89,6 +110,13 @@
         "Squat": 100,
         "Bench": 80,
         "Deadlift": 130
+      },
+      {
+        "date": "2026-10-23",
+        "bodyweight": 61,
+        "Squat": 90,
+        "Bench": 90,
+        "Deadlift": 140
       }
     ]
   },

@@ -13,13 +13,13 @@ import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme as ironTheme, IRON, FONTS, hardShadow } from "./theme";
 import { Hero, RankedHero, SortMode } from "./types";
-import { calculateGLPoints } from "./utils/glPoints";
+import { calculateDots } from "./utils/dots";
 import { computeTotal, getCurrentBodyweight, getSortValue } from "./utils/lifts";
 import { useFlip } from "./utils/motion";
 import { playClang } from "./utils/clang";
 import { useSound } from "./utils/sound";
 import { SortControls } from "./components/SortControls";
-import { BarbellDivider } from "./components/BarbellDivider";
+import { BarbedWireDivider } from "./components/BarbedWireDivider";
 import { AtmosphereLayer } from "./components/AtmosphereLayer";
 import { BloodTitle } from "./components/BloodTitle";
 import { Podium } from "./components/Podium";
@@ -44,7 +44,7 @@ const App: React.FC = () => {
         return {
           ...h,
           total,
-          glPoints: calculateGLPoints(total, bodyweight, h.sex),
+          dots: calculateDots(total, bodyweight, h.sex),
         };
       }),
     [heroes],
@@ -168,7 +168,7 @@ const App: React.FC = () => {
             />
           )}
 
-          <BarbellDivider />
+          <BarbedWireDivider title="The Board" />
 
           <Leaderboard
             isMobile={isMobile}

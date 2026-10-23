@@ -6,7 +6,11 @@ export const prefersReducedMotion = () =>
 
 // Counts from 0 up to `target` with an ease-out, restarting whenever target changes.
 // Calls onDone when it lands (used to trigger the slam).
-export function useCountUp(target: number, duration = 900, onDone?: () => void) {
+export function useCountUp(
+  target: number,
+  duration = 900,
+  onDone?: () => void,
+) {
   const [value, setValue] = useState(prefersReducedMotion() ? target : 0);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
@@ -36,7 +40,9 @@ export function useCountUp(target: number, duration = 900, onDone?: () => void) 
 // Table rows animate their cells, since transforms on <tr> are unreliable across browsers.
 export function useFlip() {
   const nodes = useRef(new Map<string, HTMLElement>());
-  const refCallbacks = useRef(new Map<string, (el: HTMLElement | null) => void>());
+  const refCallbacks = useRef(
+    new Map<string, (el: HTMLElement | null) => void>(),
+  );
   const first = useRef<Map<string, number> | null>(null);
 
   const register = useCallback((key: string) => {
@@ -54,7 +60,10 @@ export function useFlip() {
   const capture = useCallback(() => {
     if (prefersReducedMotion()) return;
     first.current = new Map(
-      Array.from(nodes.current, ([key, el]) => [key, el.getBoundingClientRect().top]),
+      Array.from(nodes.current, ([key, el]) => [
+        key,
+        el.getBoundingClientRect().top,
+      ]),
     );
   }, []);
 
@@ -78,4 +87,31 @@ export function useFlip() {
   }, []);
 
   return { register, capture, play };
+}
+
+// True once the element has scrolled into view (and stays true). Reduced motion,
+// or a browser without IntersectionObserver, shows it straight away.
+export function useInViewOnce<T extends Element>() {
+  const ref = useRef<T>(null);
+  const [inView, setInView] = useState(
+    () => prefersReducedMotion() || typeof IntersectionObserver === "undefined",
+  );
+
+  useEffect(() => {
+    const el = ref.current;
+    if (inView || !el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [inView]);
+
+  return { ref, inView };
 }

@@ -15,7 +15,7 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "Squat", label: "Squat" },
   { value: "Bench", label: "Bench" },
   { value: "Deadlift", label: "Deadlift" },
-  { value: "glPoints", label: "GL Points" },
+  { value: "dots", label: "DOTS" },
 ];
 
 export const SortControls: React.FC<{
