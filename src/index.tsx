@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { SoundProvider } from "./utils/sound";
+import "@fontsource/metal-mania";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
@@ -9,7 +11,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <SoundProvider>
+      <App />
+    </SoundProvider>
   </React.StrictMode>
 );
 

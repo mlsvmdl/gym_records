@@ -137,7 +137,7 @@ export const RankBadge: React.FC<{
       sx={{
         width: dims,
         height: dims,
-        borderRadius: "6px",
+        borderRadius: 0,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -154,7 +154,7 @@ export const RankBadge: React.FC<{
           content: '""',
           position: "absolute",
           inset: 0,
-          borderRadius: "6px",
+          borderRadius: 0,
           ...scratchTexture,
         },
         "&:hover": {

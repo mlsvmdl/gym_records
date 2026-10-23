@@ -1,196 +1,77 @@
-import { createTheme, ThemeOptions, lighten } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 
-declare module "@mui/material/styles" {
-  interface Theme {
-    borderColor: {
-      primary: string;
-    };
-    background: {
-      damp: string;
-    };
-    customColors: {
-      goldDark: string;
-    };
-  }
-  interface ThemeOptions {
-    borderColor?: {
-      primary?: string;
-    };
-    background?: {
-      damp?: string;
-    };
-    customColors?: {
-      goldDark?: string;
-    };
-  }
-}
-
-const baseTheme: ThemeOptions = {
-  typography: {
-    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-    fontSize: 16,
-    button: {
-      textTransform: "none",
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: ({ theme }) => ({
-          borderRadius: "8px",
-        }),
-      },
-    },
-    MuiList: {
-      styleOverrides: {
-        root: {
-          padding: "4px",
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: ({ theme }) => ({
-          borderRadius: "12px",
-          border: `1px solid ${theme.palette.divider}`,
-          backgroundColor: theme.palette.background.paper,
-          boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
-          padding: "24px",
-        }),
-      },
-    },
-    // Add stronger shadow to the Menu component
-    MuiMenu: {
-      styleOverrides: {
-        paper: {
-          borderRadius: "10px",
-          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.15)", // Increased shadow
-          overflow: "hidden",
-        },
-      },
-    },
-    // Style the menu items
-    MuiMenuItem: {
-      styleOverrides: {
-        root: ({ theme }) => ({
-          borderRadius: "6px",
-          margin: "2px 4px",
-          "&:hover": {
-            backgroundColor:
-              theme.palette.mode === "light"
-                ? lighten(theme.palette.primary.light, 0.9)
-                : lighten(theme.palette.primary.dark, 0.1),
-          },
-        }),
-      },
-    },
-    // Add stronger shadow to the Popover component
-    MuiPopover: {
-      styleOverrides: {
-        paper: {
-          borderRadius: "10px",
-          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.15)", // Increased shadow
-        },
-      },
-    },
-  },
+// "Iron & Blood": black iron, bone-white chalk, and one colour that hurts.
+// Red is reserved for what matters: the active sort, PRs and #1.
+export const IRON = {
+  black: "#0b0a0a",
+  plate: "#151313",
+  steel: "#2a2626",
+  line: "rgba(232,224,208,0.12)",
+  bone: "#e8e0d0",
+  boneDim: "rgba(232,224,208,0.6)",
+  boneFaint: "rgba(232,224,208,0.4)",
+  blood: "#a3101a",
+  bloodDeep: "#4a0608",
+  // Brighter red for text on black (passes WCAG AA contrast, #a3101a does not)
+  bloodText: "#ff3b2f",
+  rust: "#8a3a24",
 };
 
-const lightThemeOptions: ThemeOptions = {
-  ...baseTheme,
-  palette: {
-    mode: "light",
-    primary: {
-      main: "#1976D2",
-      contrastText: "#FFFFFF",
-    },
-    secondary: {
-      main: "#D1C4E9",
-      contrastText: "#000000",
-    },
-    background: {
-      default: "#FFFFFF",
-      paper: "#FFFFFF",
-    },
-    error: {
-      main: "#D32F2F",
-      contrastText: "#FFFFFF",
-    },
-    warning: {
-      main: "#FFA000",
-      contrastText: "#000000",
-    },
-    info: {
-      main: "#0288D1",
-      contrastText: "#FFFFFF",
-    },
-    success: {
-      main: "#388E3C",
-      contrastText: "#FFFFFF",
-    },
-    text: {
-      primary: "#333333",
-      secondary: "#666666",
-    },
-  },
-  background: {
-    damp: "#F9F9F9",
-  },
-  borderColor: {
-    primary: "#1976D2",
-  },
-  customColors: {
-    goldDark: "#DF9800",
-  },
+export const FONTS = {
+  metal: "'Metal Mania', 'Oswald', serif",
+  stat: "'Oswald', 'Helvetica Neue', sans-serif",
+  // Big hero numbers (podium, barbell weights): chipped, stamped look
+  numberBig: "'Rubik Dirt', 'Oswald', sans-serif",
+  // Table/data numbers: plate stencil, condensed so columns fit on phones
+  number: "'Big Shoulders Stencil', 'Oswald', sans-serif",
 };
 
-const darkThemeOptions: ThemeOptions = {
-  ...baseTheme,
+// Hard offset shadow, no blur: the brutalist "stamped" look
+export const hardShadow = (offset = 6) => `${offset}px ${offset}px 0 #000`;
+
+export const theme = createTheme({
   palette: {
     mode: "dark",
-    primary: {
-      main: "#1976D2",
-      contrastText: "#FFFFFF",
+    primary: { main: IRON.blood, contrastText: IRON.bone },
+    error: { main: IRON.bloodText },
+    background: { default: IRON.black, paper: IRON.plate },
+    text: { primary: IRON.bone, secondary: IRON.boneDim },
+    divider: IRON.line,
+  },
+  shape: { borderRadius: 0 },
+  typography: {
+    fontFamily: FONTS.stat,
+    fontSize: 16,
+    button: { textTransform: "uppercase", letterSpacing: 1 },
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "rgba(11,10,10,0.85)",
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: IRON.line,
+            borderWidth: 2,
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: IRON.boneFaint,
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: IRON.blood,
+          },
+        },
+      },
     },
-    secondary: {
-      main: "#9575CD",
-      contrastText: "#000000",
+    MuiPaper: {
+      styleOverrides: { root: { backgroundImage: "none" } },
     },
-    background: {
-      default: "#2C2C2C",
-      paper: "#424242",
+    MuiMenu: {
+      styleOverrides: {
+        paper: { border: `2px solid ${IRON.line}`, boxShadow: hardShadow(4) },
+      },
     },
-    error: {
-      main: "#D32F2F",
-      contrastText: "#FFFFFF",
-    },
-    warning: {
-      main: "#FFA000",
-      contrastText: "#000000",
-    },
-    info: {
-      main: "#0288D1",
-      contrastText: "#FFFFFF",
-    },
-    success: {
-      main: "#388E3C",
-      contrastText: "#FFFFFF",
-    },
-    text: {
-      primary: "#E0E0E0",
-      secondary: "#B0B0B0",
+    MuiTableCell: {
+      styleOverrides: { root: { borderBottomColor: IRON.line } },
     },
   },
-  background: {
-    damp: "#2C2C2C",
-  },
-  borderColor: {
-    primary: "#1976D2",
-  },
-  customColors: {
-    goldDark: "#D4AF37",
-  },
-};
-
-export const lightTheme = createTheme(lightThemeOptions);
-export const darkTheme = createTheme(darkThemeOptions);
+});

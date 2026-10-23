@@ -1,17 +1,24 @@
 export type Sex = "male" | "female";
 export type LiftType = "Squat" | "Bench" | "Deadlift";
+export type SortMode = LiftType | "total" | "glPoints";
 
-export interface LiftRecord {
-  type: LiftType;
-  value: number; // kg
-  videoUrl?: string;
+// One meet/session: all three lifts + bodyweight recorded on the same date
+export interface LiftSession {
+  date: string; // "YYYY-MM-DD"
+  bodyweight: number;
+  Squat: number;
+  Bench: number;
+  Deadlift: number;
 }
 
 export interface Hero {
   name: string;
-  bodyweight: number; // kg
   sex: Sex;
-  Records: LiftRecord[];
+  history: LiftSession[];
 }
 
-export type SortMode = "total" | "Squat" | "Bench" | "Deadlift" | "glPoints";
+export interface RankedHero extends Hero {
+  total: number;
+  glPoints: number;
+  originalRank: number;
+}

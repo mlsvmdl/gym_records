@@ -1,9 +1,12 @@
 import React from "react";
-import { Box, Typography, Divider } from "@mui/material";
-import { Hero, LiftType } from "../App";
+import { Box, Typography, Divider, GlobalStyles } from "@mui/material";
+import { FONTS, IRON } from "../theme";
+import { Hero, LiftSession, LiftType } from "../types";
 import { calculateGLPoints } from "../utils/glPoints";
+import { LoadedBarbells } from "./LoadedBarbell";
 
 const LIFT_ORDER: LiftType[] = ["Squat", "Bench", "Deadlift"];
+const LIFT_SHORT: Record<LiftType, string> = { Squat: "SQ", Bench: "BP", Deadlift: "DL" };
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -14,6 +17,48 @@ function formatDate(dateStr: string): string {
     year: "numeric",
   });
 }
+
+// Speckle mask so the stamp looks like uneven ink, not a clean border
+const INK_MASK =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='30'><filter id='i'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='9'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -9 0 0 0 5.6'/></filter><rect width='100%25' height='100%25' filter='url(%23i)'/></svg>";
+
+// Red ink "PR" stamp slammed over a number that beat every earlier meet
+const PRStamp: React.FC<{ delay: number }> = ({ delay }) => (
+  <Box
+    component="span"
+    aria-label="personal record"
+    sx={{
+      position: "absolute",
+      top: -11,
+      right: -16,
+      px: "3px",
+      border: `2px solid ${IRON.bloodText}`,
+      color: IRON.bloodText,
+      fontFamily: FONTS.stat,
+      fontWeight: 700,
+      fontSize: "0.6rem",
+      lineHeight: 1.2,
+      letterSpacing: 1,
+      transform: "rotate(-12deg)",
+      maskImage: `url("${INK_MASK}")`,
+      WebkitMaskImage: `url("${INK_MASK}")`,
+      pointerEvents: "none",
+      animation: "prStamp 0.22s cubic-bezier(.3,1.4,.5,1) both",
+      animationDelay: `${delay}s`,
+      "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+    }}
+  >
+    PR
+  </Box>
+);
+
+// Hidden on phones: no room, and the PR stamp already flags the gains that matter
+const deltaSx = (delta: number) => ({
+  display: { xs: "none", sm: "block" },
+  fontSize: "0.65rem",
+  fontWeight: 600,
+  color: delta > 0 ? IRON.boneDim : IRON.boneFaint,
+});
 
 export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
   const sessions = [...(hero.history ?? [])].sort(
@@ -26,22 +71,31 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
         p: 2,
         background:
           "linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75))",
-        border: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: 1,
+        border: `1px solid ${IRON.line}`,
       }}
     >
-      <Typography
-        sx={{
-          fontFamily: "'Oswald', sans-serif",
-          fontSize: "0.7rem",
-          letterSpacing: 1,
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.45)",
-          mb: 1,
+      <GlobalStyles
+        styles={{
+          "@keyframes prStamp": {
+            "0%": { transform: "scale(2.6) rotate(-24deg)", opacity: 0 },
+            "100%": { transform: "scale(1) rotate(-12deg)", opacity: 1 },
+          },
         }}
-      >
-        Meet History
-      </Typography>
+      />
+      {sessions.length > 0 && (
+        <>
+          <Typography sx={sectionLabelSx}>Best lifts, loaded</Typography>
+          <Box sx={{ mb: 3, px: { xs: 1, sm: 2 } }}>
+            <LoadedBarbells
+              lifts={LIFT_ORDER.map((type) => ({
+                lift: type,
+                kg: Math.max(...sessions.map((s) => s[type])),
+              }))}
+            />
+          </Box>
+        </>
+      )}
+      <Typography sx={sectionLabelSx}>Meet History</Typography>
 
       {sessions.length === 0 ? (
         <Box
@@ -50,15 +104,14 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            borderRadius: 1,
             background:
               "repeating-linear-gradient(45deg, #1a1a1a, #1a1a1a 8px, #222 8px, #222 16px)",
-            border: "1px dashed rgba(255,255,255,0.15)",
+            border: `1px dashed ${IRON.line}`,
           }}
         >
           <Typography
             sx={{
-              color: "rgba(255,255,255,0.4)",
+              color: IRON.boneFaint,
               fontSize: "0.75rem",
               textTransform: "uppercase",
               letterSpacing: 1,
@@ -70,8 +123,7 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
       ) : (
         <Box
           sx={{
-            borderRadius: 1,
-            border: "1px solid rgba(255,255,255,0.06)",
+            border: `1px solid ${IRON.line}`,
             overflow: "hidden",
           }}
         >
@@ -82,7 +134,7 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
               gridTemplateColumns: "1fr 0.8fr repeat(3, 1fr) 1fr 1fr",
               px: 1.5,
               py: 0.75,
-              background: "linear-gradient(90deg,#111,#1b1b1b)",
+              background: IRON.black,
             }}
           >
             <Typography sx={headerCellSx}>Date</Typography>
@@ -91,7 +143,12 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
             </Typography>
             {LIFT_ORDER.map((type) => (
               <Typography key={type} align="right" sx={headerCellSx}>
-                {type}
+                <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                  {type}
+                </Box>
+                <Box component="span" sx={{ display: { sm: "none" } }}>
+                  {LIFT_SHORT[type]}
+                </Box>
               </Typography>
             ))}
             <Typography align="right" sx={headerCellSx}>
@@ -115,6 +172,11 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
               hero.sex,
             );
             const isLatest = idx === 0;
+            const earlier = sessions.slice(idx + 1);
+            // A PR beats every earlier meet, not just the previous one
+            const isPR = (value: number, of: (s: LiftSession) => number) =>
+              earlier.length > 0 && value > Math.max(...earlier.map(of));
+            const stampDelay = 0.25 + idx * 0.1;
 
             return (
               <Box key={session.date}>
@@ -126,15 +188,15 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
                     py: 1,
                     alignItems: "center",
                     background: isLatest
-                      ? "rgba(217,70,60,0.08)"
+                      ? "rgba(163,16,26,0.14)"
                       : "transparent",
                   }}
                 >
                   <Typography
                     sx={{
-                      fontSize: "0.8rem",
+                      fontSize: { xs: "0.7rem", sm: "0.8rem" },
                       fontWeight: isLatest ? 700 : 500,
-                      color: isLatest ? "#fff" : "rgba(255,255,255,0.6)",
+                      color: isLatest ? IRON.bone : IRON.boneDim,
                     }}
                   >
                     {formatDate(session.date)}
@@ -143,11 +205,15 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
                   <Typography
                     align="right"
                     sx={{
-                      fontSize: "0.75rem",
-                      color: "rgba(255,255,255,0.55)",
+                      fontFamily: FONTS.number,
+                      fontSize: { xs: "0.8rem", sm: "0.95rem" },
+                      color: IRON.boneDim,
                     }}
                   >
-                    {session.bodyweight} kg
+                    {session.bodyweight}
+                    <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                      {" "}kg
+                    </Box>
                   </Typography>
 
                   {LIFT_ORDER.map((type) => {
@@ -167,21 +233,20 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
                         <Typography
                           align="right"
                           sx={{
-                            fontSize: "0.8rem",
+                            position: "relative",
+                            fontFamily: FONTS.number,
+                        fontSize: { xs: "0.9rem", sm: "1.05rem" },
                             fontWeight: isLatest ? 700 : 500,
-                            color: isLatest ? "#fff" : "rgba(255,255,255,0.7)",
+                            color: isLatest ? IRON.bone : IRON.boneDim,
                           }}
                         >
                           {value}
+                          {isPR(value, (s) => s[type]) && (
+                            <PRStamp delay={stampDelay} />
+                          )}
                         </Typography>
                         {delta !== null && delta !== 0 && (
-                          <Typography
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 600,
-                              color: delta > 0 ? "#5fbf6b" : "#d9463c",
-                            }}
-                          >
+                          <Typography sx={deltaSx(delta)}>
                             {delta > 0 ? "+" : ""}
                             {delta}
                           </Typography>
@@ -201,21 +266,20 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
                     <Typography
                       align="right"
                       sx={{
-                        fontSize: "0.8rem",
+                        position: "relative",
+                        fontFamily: FONTS.number,
+                        fontSize: { xs: "0.9rem", sm: "1.05rem" },
                         fontWeight: 700,
-                        color: isLatest ? "#c9463c" : "rgba(255,255,255,0.8)",
+                        color: isLatest ? IRON.bloodText : IRON.boneDim,
                       }}
                     >
                       {total}
+                      {isPR(total, (s) => s.Squat + s.Bench + s.Deadlift) && (
+                        <PRStamp delay={stampDelay + 0.15} />
+                      )}
                     </Typography>
                     {totalDelta !== null && totalDelta !== 0 && (
-                      <Typography
-                        sx={{
-                          fontSize: "0.65rem",
-                          fontWeight: 600,
-                          color: totalDelta > 0 ? "#5fbf6b" : "#d9463c",
-                        }}
-                      >
+                      <Typography sx={deltaSx(totalDelta)}>
                         {totalDelta > 0 ? "+" : ""}
                         {totalDelta}
                       </Typography>
@@ -225,16 +289,17 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
                   <Typography
                     align="right"
                     sx={{
-                      fontSize: "0.8rem",
+                      fontFamily: FONTS.number,
+                        fontSize: { xs: "0.9rem", sm: "1.05rem" },
                       fontWeight: 600,
-                      color: "rgba(255,255,255,0.65)",
+                      color: IRON.boneDim,
                     }}
                   >
                     {glPoints.toFixed(2)}
                   </Typography>
                 </Box>
                 {idx < sessions.length - 1 && (
-                  <Divider sx={{ borderColor: "rgba(255,255,255,0.05)" }} />
+                  <Divider sx={{ borderColor: IRON.line }} />
                 )}
               </Box>
             );
@@ -245,10 +310,19 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
   );
 };
 
+const sectionLabelSx = {
+  fontFamily: FONTS.stat,
+  fontSize: "0.7rem",
+  letterSpacing: 2,
+  textTransform: "uppercase" as const,
+  color: IRON.boneFaint,
+  mb: 1,
+};
+
 const headerCellSx = {
-  fontFamily: "'Oswald', sans-serif",
+  fontFamily: FONTS.stat,
   fontSize: "0.65rem",
   letterSpacing: 1,
   textTransform: "uppercase" as const,
-  color: "rgba(255,255,255,0.45)",
+  color: IRON.boneFaint,
 };

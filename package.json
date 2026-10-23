@@ -23,7 +23,7 @@
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
-  "homepage": "https://Brondont.github.io/gym_records",
+  "homepage": "https://mlsvmdl.github.io/gym_records",
   "scripts": {
     "start": "react-scripts start",
     "predeploy": "npm run build",

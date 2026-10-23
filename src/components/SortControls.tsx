@@ -8,6 +8,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { SortMode } from "../types";
+import { FONTS, IRON } from "../theme";
 
 const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "total", label: "Total" },
@@ -32,14 +33,13 @@ export const SortControls: React.FC<{
         value={value}
         onChange={(e) => onChange(e.target.value as SortMode)}
         sx={{
-          background: "linear-gradient(160deg, #2a2b2d, #141516)",
-          color: "#fff",
-          borderRadius: 1,
-          fontFamily: "'Oswald', sans-serif",
+          background: IRON.black,
+          color: IRON.bone,
+          fontFamily: FONTS.stat,
           letterSpacing: 1,
           textTransform: "uppercase",
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "rgba(255,255,255,0.15)",
+            borderColor: IRON.line,
           },
         }}
       >
@@ -58,10 +58,10 @@ export const SortControls: React.FC<{
       value={value}
       onChange={(_, v) => v && onChange(v)}
       sx={{
-        background: "linear-gradient(160deg, #2a2b2d, #141516)",
-        borderRadius: 1,
+        background: IRON.black,
         p: 0.5,
-        border: "1px solid rgba(255,255,255,0.08)",
+        border: `2px solid ${IRON.line}`,
+        boxShadow: "4px 4px 0 #000",
       }}
     >
       {SORT_OPTIONS.map((opt) => (
@@ -69,17 +69,16 @@ export const SortControls: React.FC<{
           key={opt.value}
           value={opt.value}
           sx={{
-            color: "rgba(255,255,255,0.6)",
-            fontFamily: "'Oswald', sans-serif",
+            color: IRON.boneDim,
+            fontFamily: FONTS.stat,
             letterSpacing: 1,
             textTransform: "uppercase",
             fontSize: "0.75rem",
             px: 2,
             border: 0,
-            borderRadius: "6px !important",
             "&.Mui-selected": {
-              color: "#fff",
-              background: "linear-gradient(135deg, #7a3220, #4a1e12)",
+              color: IRON.bone,
+              background: `linear-gradient(135deg, ${IRON.blood}, ${IRON.bloodDeep})`,
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)",
             },
             "&:hover": { background: "rgba(255,255,255,0.06)" },
