@@ -47,65 +47,7 @@ const titleStyles = {
     transformOrigin: "center",
     animation: "btDropFall 6s ease-in infinite",
   },
-  // Bad-tape glitch: two offset copies of the title flash in sliced bands for
-  // a split second every ~7s (steps(1) so they jump, never tween)
-  "@keyframes btGlitchA": {
-    "0%, 92%, 95.5%, 100%": { opacity: 0, transform: "none" },
-    "92.5%": {
-      opacity: 0.9,
-      transform: "translate(-6px, 2px)",
-      clipPath: "inset(8% 0 58% 0)",
-    },
-    "93.5%": {
-      opacity: 0.9,
-      transform: "translate(5px, -1px)",
-      clipPath: "inset(55% 0 12% 0)",
-    },
-    "94.5%": {
-      opacity: 0.8,
-      transform: "translate(-3px, 0)",
-      clipPath: "inset(30% 0 45% 0)",
-    },
-  },
-  "@keyframes btGlitchB": {
-    "0%, 92%, 95.5%, 100%": { opacity: 0, transform: "none" },
-    "92.5%": {
-      opacity: 0.85,
-      transform: "translate(6px, -2px)",
-      clipPath: "inset(62% 0 6% 0)",
-    },
-    "93.5%": {
-      opacity: 0.85,
-      transform: "translate(-7px, 1px)",
-      clipPath: "inset(18% 0 50% 0)",
-    },
-    "94.5%": {
-      opacity: 0.7,
-      transform: "translate(3px, 1px)",
-      clipPath: "inset(70% 0 2% 0)",
-    },
-  },
-  ".bt-glitch::before, .bt-glitch::after": {
-    content: "attr(data-text)",
-    position: "absolute",
-    inset: 0,
-    padding: "0 16px",
-    background: "none",
-    pointerEvents: "none",
-    opacity: 0,
-  },
-  ".bt-glitch::before": {
-    WebkitTextFillColor: IRON.bone,
-    color: IRON.bone,
-    animation: "btGlitchA 7.3s steps(1) infinite",
-  },
-  ".bt-glitch::after": {
-    WebkitTextFillColor: IRON.bloodText,
-    color: IRON.bloodText,
-    animation: "btGlitchB 7.3s steps(1) infinite",
-  },
   "@media (prefers-reduced-motion: reduce)": {
-    ".bt-glitch::before, .bt-glitch::after": { display: "none" },
     ".bt-flicker, .bt-drip, .bt-bulb": {
       animation: "none",
       strokeDashoffset: 0,
@@ -194,8 +136,6 @@ export const BloodTitle: React.FC = () => (
     >
       <Box
         component="span"
-        className="bt-glitch"
-        data-text="Sougueur"
         sx={{
           position: "relative",
           fontFamily: FONTS.metal,
@@ -293,7 +233,7 @@ export const BloodTitle: React.FC = () => (
       </g>
     </Box>
 
-    {/* Ronnie's war cry, set like an album-cover tagline */}
+    {/* Rollins, "Iron and the Soul" (1994), set like an album-cover tagline */}
     <Box component="figure" sx={{ m: 0, mt: 1 }}>
       <Typography
         component="blockquote"
@@ -308,25 +248,25 @@ export const BloodTitle: React.FC = () => (
           textShadow: "2px 2px 0 #000",
         }}
       >
-        “Yeah buddy!{" "}
+        “The iron{" "}
         <Box component="span" sx={{ color: IRON.bloodText }}>
-          Light weight
-        </Box>
-        , baby!”
+          never lies
+        </Box>{" "}
+        to you.”
       </Typography>
       <Typography
         component="figcaption"
         sx={{
           mt: 0.5,
           fontFamily: FONTS.stat,
-          fontSize: "0.65rem",
-          letterSpacing: "0.4em",
+          fontSize: "0.75rem",
+          letterSpacing: "0.3em",
           textTransform: "uppercase",
-          color: IRON.boneDim,
+          color: IRON.bone,
           textShadow: "2px 2px 0 #000",
         }}
       >
-        — Ronnie Coleman
+        — Henry Rollins
       </Typography>
     </Box>
   </Box>

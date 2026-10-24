@@ -3,6 +3,42 @@
   padding: 0;
 }
 
+html {
+  color-scheme: dark;
+  scrollbar-color: #4a0608 #0b0a0a;
+}
+
 body {
   background: #0b0a0a;
+  caret-color: #ff3b2f;
+  /* Special Elite and Metal Mania ship one weight each; never fake-bold them */
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #a3101a;
+  color: #e8e0d0;
+}
+
+:focus-visible {
+  outline: 2px solid #ff3b2f;
+  outline-offset: 3px;
+}
+
+/* Rusted gutter with a dried-blood thumb */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a3101a, #4a0608);
+  border: 2px solid #0b0a0a;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a3101a;
 }

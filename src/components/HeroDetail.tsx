@@ -1,22 +1,24 @@
 import React from "react";
-import { Box, Typography, GlobalStyles, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Typography,
+  GlobalStyles,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { FONTS, IRON } from "../theme";
 import { Hero, LiftSession, LiftType } from "../types";
 import { calculateDots } from "../utils/dots";
 import { LoadedBarbells } from "./LoadedBarbell";
+import { formatDate } from "../utils/lifts";
+import { PUNCHED, RECESS } from "../textures";
 
 const LIFT_ORDER: LiftType[] = ["Squat", "Bench", "Deadlift"];
-const LIFT_SHORT: Record<LiftType, string> = { Squat: "SQ", Bench: "BP", Deadlift: "DL" };
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+const LIFT_SHORT: Record<LiftType, string> = {
+  Squat: "SQ",
+  Bench: "BP",
+  Deadlift: "DL",
+};
 
 // Speckle mask so the stamp looks like uneven ink, not a clean border
 const INK_MASK =
@@ -30,7 +32,7 @@ const PRStamp: React.FC<{ delay: number; at?: "value" | "seam" }> = ({
 }) => (
   <Box
     component="span"
-    aria-label="personal record"
+    aria-hidden
     sx={{
       position: "absolute",
       // seam: straddles the seam above the cell, centred (stamp is ~24px wide)
@@ -42,7 +44,7 @@ const PRStamp: React.FC<{ delay: number; at?: "value" | "seam" }> = ({
       color: IRON.bloodText,
       fontFamily: FONTS.stat,
       fontWeight: 700,
-      fontSize: "0.6rem",
+      fontSize: "0.65rem",
       lineHeight: 1.2,
       letterSpacing: 1,
       transform: "rotate(-12deg)",
@@ -144,10 +146,21 @@ const CellValue: React.FC<{
       fontWeight: meet.isLatest ? 800 : 700,
       fontSize: size,
       lineHeight: 1.1,
-      color: cell.highlight ? IRON.bloodText : meet.isLatest ? IRON.bone : IRON.boneDim,
+      textShadow: PUNCHED,
+      color: cell.highlight
+        ? IRON.bloodText
+        : meet.isLatest
+          ? IRON.bone
+          : IRON.boneDim,
     }}
   >
     {cell.text}
+    {cell.isPR && (
+      <Box component="span" sx={visuallyHidden}>
+        {" "}
+        (personal record)
+      </Box>
+    )}
     {withStamp && cell.isPR && (
       <PRStamp delay={meet.stampDelay + index * 0.05} />
     )}
@@ -159,8 +172,16 @@ const CellValue: React.FC<{
 const GRID = "1.1fr 0.7fr repeat(3, 1fr) 1fr 1fr";
 
 const MeetTable: React.FC<{ meets: Meet[] }> = ({ meets }) => (
-  <Box sx={{ border: "2px solid #000" }}>
-    <Box sx={{ display: "grid", gridTemplateColumns: GRID, px: 1.5, py: 0.75, background: IRON.black }}>
+  <Box sx={RECESS}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: GRID,
+        px: 1.5,
+        py: 0.75,
+        background: "rgba(0,0,0,0.45)",
+      }}
+    >
       <Typography sx={headerCellSx}>Date</Typography>
       <Typography align="right" sx={headerCellSx}>
         BW
@@ -180,7 +201,7 @@ const MeetTable: React.FC<{ meets: Meet[] }> = ({ meets }) => (
           alignItems: "center",
           px: 1.5,
           py: 1,
-          borderTop: "2px solid #000",
+          borderTop: "1px solid #000",
           boxShadow: "inset 0 1px 0 rgba(232,224,208,0.05)",
           background: meet.isLatest ? "rgba(163,16,26,0.14)" : "transparent",
         }}
@@ -194,13 +215,25 @@ const MeetTable: React.FC<{ meets: Meet[] }> = ({ meets }) => (
         >
           {formatDate(meet.date)}
         </Typography>
-        <Typography align="right" sx={{ fontFamily: FONTS.number, fontSize: "0.95rem", color: IRON.boneDim }}>
+        <Typography
+          align="right"
+          sx={{
+            fontFamily: FONTS.number,
+            fontSize: "0.95rem",
+            color: IRON.boneDim,
+          }}
+        >
           {meet.bodyweight} kg
         </Typography>
         {meet.cells.map((cell, i) => (
           <Box
             key={cell.key}
-            sx={{ display: "flex", justifyContent: "flex-end", alignItems: "baseline", gap: 0.5 }}
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "baseline",
+              gap: 0.5,
+            }}
           >
             <CellValue meet={meet} cell={cell} index={i} size="1.05rem" />
             {cell.delta !== null && cell.delta !== 0 && (
@@ -208,11 +241,12 @@ const MeetTable: React.FC<{ meets: Meet[] }> = ({ meets }) => (
                 sx={{
                   fontSize: "0.65rem",
                   fontWeight: 600,
-                  color: cell.delta > 0 ? IRON.boneDim : IRON.boneFaint,
+                  // a lift that went backwards is a scar, not a footnote
+                  color: cell.delta > 0 ? IRON.boneDim : IRON.scar,
                 }}
               >
-                {cell.delta > 0 ? "+" : ""}
-                {cell.delta}
+                {cell.delta > 0 ? "+" : "−"}
+                {Math.abs(cell.delta)}
               </Typography>
             )}
           </Box>
@@ -230,8 +264,8 @@ const MeetBlocks: React.FC<{ meets: Meet[] }> = ({ meets }) => (
       <Box
         key={meet.date}
         sx={{
-          border: "2px solid #000",
-          background: meet.isLatest ? "rgba(163,16,26,0.14)" : IRON.black,
+          ...RECESS,
+          ...(meet.isLatest && { background: "rgba(74,6,8,0.45)" }),
         }}
       >
         <Box
@@ -241,7 +275,7 @@ const MeetBlocks: React.FC<{ meets: Meet[] }> = ({ meets }) => (
             alignItems: "baseline",
             px: 1.25,
             py: 0.75,
-            borderBottom: "2px solid #000",
+            borderBottom: "1px solid #000",
           }}
         >
           <Typography
@@ -257,7 +291,14 @@ const MeetBlocks: React.FC<{ meets: Meet[] }> = ({ meets }) => (
           </Typography>
           <Typography sx={{ ...headerCellSx, fontSize: "0.7rem" }}>
             BW{" "}
-            <Box component="span" sx={{ fontFamily: FONTS.number, fontSize: "0.95rem", color: IRON.boneDim }}>
+            <Box
+              component="span"
+              sx={{
+                fontFamily: FONTS.number,
+                fontSize: "0.95rem",
+                color: IRON.boneDim,
+              }}
+            >
               {meet.bodyweight}
             </Box>{" "}
             kg
@@ -272,7 +313,7 @@ const MeetBlocks: React.FC<{ meets: Meet[] }> = ({ meets }) => (
                 textAlign: "center",
                 pt: 1.25,
                 pb: 0.75,
-                borderLeft: i > 0 ? "2px solid #000" : 0,
+                borderLeft: i > 0 ? "1px solid #000" : 0,
               }}
             >
               {cell.isPR && (
@@ -308,7 +349,8 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
     <Box
       sx={{
         p: { xs: 1.5, sm: 2 },
-        background: "linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75))",
+        background:
+          "linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75))",
         borderTop: "2px solid #000",
       }}
     >
@@ -322,7 +364,7 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
       />
       {sessions.length > 0 && (
         <>
-          <Typography sx={sectionLabelSx}>Best lifts, loaded</Typography>
+          <Typography sx={sectionLabelSx}>Heaviest iron, loaded</Typography>
           <Box sx={{ mb: 3, px: { xs: 0, sm: 2 } }}>
             <LoadedBarbells
               compact={isPhone}
@@ -334,7 +376,7 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
           </Box>
         </>
       )}
-      <Typography sx={sectionLabelSx}>Meet History</Typography>
+      <Typography sx={sectionLabelSx}>Scars, newest first</Typography>
 
       {meets.length === 0 ? (
         <Box
@@ -343,9 +385,8 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background:
-              "repeating-linear-gradient(45deg, #1a1a1a, #1a1a1a 8px, #222 8px, #222 16px)",
-            border: `1px dashed ${IRON.line}`,
+            background: IRON.black,
+            border: `2px dashed ${IRON.bloodDeep}`,
           }}
         >
           <Typography
@@ -356,7 +397,7 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
               letterSpacing: 1,
             }}
           >
-            No history yet
+            No blood spilled yet
           </Typography>
         </Box>
       ) : isPhone ? (
@@ -367,6 +408,15 @@ export const HeroDetail: React.FC<{ hero: Hero }> = ({ hero }) => {
     </Box>
   );
 };
+
+const visuallyHidden = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  overflow: "hidden",
+  clip: "rect(0 0 0 0)",
+  whiteSpace: "nowrap",
+} as const;
 
 const sectionLabelSx = {
   fontFamily: FONTS.stat,

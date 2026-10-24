@@ -143,8 +143,10 @@ export const AtmosphereLayer: React.FC = () => {
           sx={{
             position: "absolute",
             inset: "-50%",
-            opacity: 0.11,
-            mixBlendMode: "overlay",
+            // plain alpha, not mix-blend-mode: blending a 2x-screen layer against
+            // the whole page cost a full-screen composite every tick and scroll
+            opacity: 0.06,
+            willChange: "transform",
             backgroundImage: `url("${NOISE_SVG}")`,
             animation: "grainJitter 1s steps(1) infinite",
             "@media (prefers-reduced-motion: reduce)": { animation: "none" },
@@ -183,8 +185,10 @@ export const AtmosphereLayer: React.FC = () => {
                 width: size,
                 height: size,
                 borderRadius: "50%",
-                background: "rgba(230,225,210,0.5)",
-                filter: "blur(0.5px)",
+                // soft edge baked into the fill; a blur filter on 14 moving
+                // particles meant re-rendering each one every frame
+                background:
+                  "radial-gradient(circle, rgba(230,225,210,0.55), rgba(230,225,210,0) 70%)",
                 animation: `dustDrift ${duration}s linear infinite`,
                 animationDelay: `${delay}s`,
               }}

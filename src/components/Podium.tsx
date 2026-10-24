@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, GlobalStyles, Typography } from "@mui/material";
 import { SortMode } from "../types";
-import { FONTS, IRON } from "../theme";
+import { FONTS, IRON, RANK_METAL } from "../theme";
 import { useCountUp } from "../utils/motion";
 import { formatMetric, METRIC_LABEL } from "../utils/lifts";
 import { playSlam, playTick } from "../utils/clang";
 import { useSound } from "../utils/sound";
-import { RankBadge } from "./RankBadge";
 import { BloodSplatter } from "./BloodSplatter";
 import { IronPlate, PLATE_BG } from "./IronPlate";
 import { ImpactCrack } from "./ImpactCrack";
 import { BarbedCorners } from "./BarbedCorners";
+import { ThornCrown } from "./ThornCrown";
+import { PunchedDigits } from "./PunchedDigits";
+import { PUNCHED_DEEP, STRIKE_MASK } from "../textures";
 
+const FIRST_COUNT_MS = 1000;
 const TICK_GAP_MS = 70; // ~14 clicks over the 1s count, like a ratchet
 
 const SHAKE: Keyframe[] = [
@@ -74,7 +77,7 @@ const PodiumCard: React.FC<{
   const { soundOn } = useSound();
   const lastTick = useRef(0);
 
-  const shown = useCountUp(value, isFirst ? 1000 : 800, () => {
+  const shown = useCountUp(value, isFirst ? FIRST_COUNT_MS : 800, () => {
     if (!isFirst) return;
     if (soundOn) playSlam();
     numberRef.current?.animate(
@@ -94,110 +97,164 @@ const PodiumCard: React.FC<{
     playTick();
   }, [shown, value, isFirst, soundOn]);
 
+  // The crown hangs above the plate, outside its overflow clip (the splatter needs it)
   return (
-    <IronPlate
-      shadow={isFirst ? 10 : 6}
+    <Box
       sx={{
-        overflow: "hidden",
-        textAlign: "center",
-        px: 2,
-        pt: isFirst ? { xs: 3, md: 5 } : { xs: 2, md: 3 },
-        pb: { xs: 2, md: 3 },
+        position: "relative",
         gridColumn: { xs: isFirst ? "1 / -1" : "auto", md: "auto" },
         order: { xs: rank - 1, md: rank === 1 ? 1 : rank === 2 ? 0 : 2 },
-        ...(isFirst && {
-          borderColor: IRON.blood,
-          background: `radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,59,47,0.28), transparent 70%), ${PLATE_BG}`,
-        }),
+        ...(isFirst && { mt: { xs: "72px", md: "96px" } }),
       }}
     >
-      {/* Giant outlined rank numeral stamped into the plate */}
-      <Typography
-        aria-hidden
+      {isFirst && (
+        <ThornCrown key={`${metric}-${value}`} landAt={FIRST_COUNT_MS / 1000} />
+      )}
+      {/* #1 is the cleanest iron on the wall; the plates beneath it have rotted more */}
+      <IronPlate
+        depth={isFirst ? 1.5 : 1}
+        rust={isFirst ? 0.3 : 0.85}
+        bloodied={isFirst}
         sx={{
-          position: "absolute",
-          right: -8,
-          bottom: -48,
-          fontFamily: FONTS.metal,
-          fontSize: isFirst ? "13rem" : "10rem",
-          lineHeight: 1,
-          color: "transparent",
-          WebkitTextStroke: `2px rgba(232,224,208,0.07)`,
-          pointerEvents: "none",
+          overflow: "hidden",
+          textAlign: "center",
+          // Same footprint the plates had with rank tags on them; the name and
+          // total now grow to fill it, centred
+          minHeight: isFirst ? { xs: 172, md: 214 } : { xs: 134, md: 164 },
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          px: { xs: 1, md: 2 },
+          pt: isFirst ? { xs: 2, md: 3 } : { xs: 1.5, md: 2 },
+          pb: { xs: 1.5, md: 2 },
+          ...(isFirst && {
+            border: `2px solid ${IRON.blood}`,
+            background: `radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,59,47,0.28), transparent 70%), ${PLATE_BG}`,
+          }),
         }}
       >
-        {rank}
-      </Typography>
-
-      {isFirst && <BarbedCorners />}
-      {isFirst && (
-        <Box
+        {/* Giant rank numeral gouged into the plate, rimmed in the place's metal.
+            It is the only rank mark on the podium, so it carries some weight. */}
+        <Typography
+          aria-hidden
           sx={{
             position: "absolute",
-            left: "50%",
-            top: { xs: -30, md: -10 },
-            transform: "translateX(-50%)",
+            right: -8,
+            bottom: -48,
+            fontFamily: FONTS.metal,
+            fontSize: isFirst ? "11rem" : "8.5rem",
+            lineHeight: 1,
+            color: "transparent",
+            WebkitTextStroke: `2px ${RANK_METAL[rank]}66`,
             pointerEvents: "none",
           }}
         >
-          <BloodSplatter key={`${metric}-${value}`} size={240} opacity={0.55} />
-        </Box>
-      )}
-
-      <Box sx={{ position: "relative", zIndex: 1 }}>
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-          <RankBadge rank={rank} size={isFirst ? "large" : "small"} />
-        </Box>
-        <Typography
-          sx={{
-            fontFamily: FONTS.metal,
-            fontSize: isFirst
-              ? { xs: "1.9rem", md: "2.4rem" }
-              : { xs: "1.25rem", md: "1.7rem" },
-            lineHeight: 1.1,
-            color: IRON.bone,
-            textShadow: "3px 3px 0 #000",
-            overflowWrap: "anywhere",
-          }}
-        >
-          {name}
+          {rank}
         </Typography>
-        <Box sx={{ position: "relative", display: "inline-block", mt: 0.5 }}>
-          <Typography
-            ref={numberRef}
-            component="span"
+
+        {/* Blood soaked into the rim of the winner's plate */}
+        {isFirst && (
+          <Box
+            aria-hidden
             sx={{
-              display: "inline-block",
-              fontFamily: FONTS.number,
-              fontWeight: 800,
-              fontVariantNumeric: "tabular-nums",
-              fontSize: isFirst
-                ? { xs: "3rem", md: "4rem" }
-                : { xs: "1.9rem", md: "2.6rem" },
-              lineHeight: 1,
-              color: isFirst ? IRON.bloodText : IRON.bone,
-              textShadow: "4px 4px 0 #000",
+              position: "absolute",
+              inset: 0,
+              zIndex: -1,
+              pointerEvents: "none",
+              boxShadow:
+                "inset 0 0 26px rgba(163,16,26,0.6), inset 0 0 4px rgba(74,6,8,0.9)",
+            }}
+          />
+        )}
+        {isFirst && <BarbedCorners />}
+        {isFirst && (
+          <Box
+            sx={{
+              position: "absolute",
+              left: "50%",
+              top: { xs: -30, md: -10 },
+              transform: "translateX(-50%)",
+              pointerEvents: "none",
             }}
           >
-            {formatMetric(shown, metric)}
+            <BloodSplatter
+              key={`${metric}-${value}`}
+              size={240}
+              opacity={0.55}
+            />
+          </Box>
+        )}
+
+        <Box sx={{ position: "relative", zIndex: 1 }}>
+          <Box
+            component="span"
+            sx={{
+              position: "absolute",
+              width: 1,
+              height: 1,
+              overflow: "hidden",
+              clip: "rect(0 0 0 0)",
+            }}
+          >
+            Rank {rank}:
+          </Box>
+          <Typography
+            sx={{
+              fontFamily: FONTS.metal,
+              fontSize: isFirst
+                ? { xs: "2.1rem", md: "2.6rem" }
+                : { xs: "1.4rem", md: "1.85rem" },
+              lineHeight: 1.1,
+              color: IRON.bone,
+              textShadow: "0 2px 0 #000, 0 4px 10px rgba(0,0,0,0.8)",
+              overflowWrap: "anywhere",
+            }}
+          >
+            {name}
           </Typography>
-          {puffs > 0 && <ChalkPuff key={puffs} />}
-          {isFirst && puffs > 0 && <ImpactCrack key={`crack${puffs}`} />}
+          <Box sx={{ position: "relative", display: "inline-block", mt: 0.5 }}>
+            <Typography
+              ref={numberRef}
+              component="span"
+              sx={{
+                display: "inline-block",
+                fontFamily: FONTS.number,
+                fontWeight: 800,
+                fontVariantNumeric: "tabular-nums",
+                fontSize: isFirst
+                  ? { xs: "3.3rem", md: "4.4rem" }
+                  : { xs: "2.1rem", md: "2.8rem" },
+                lineHeight: 1,
+                color: isFirst ? IRON.bloodText : IRON.bone,
+                textShadow: PUNCHED_DEEP,
+                maskImage: STRIKE_MASK,
+                WebkitMaskImage: STRIKE_MASK,
+                maskSize: "80px 80px",
+                // room inside the masked box so the soft shadow isn't cut off
+                p: "0.12em 0.2em 0.3em",
+                m: "-0.12em -0.2em -0.3em",
+              }}
+            >
+              <PunchedDigits text={formatMetric(shown, metric)} />
+            </Typography>
+            {puffs > 0 && <ChalkPuff key={puffs} />}
+            {isFirst && puffs > 0 && <ImpactCrack key={`crack${puffs}`} />}
+          </Box>
+          <Typography
+            sx={{
+              fontFamily: FONTS.stat,
+              fontSize: { xs: "0.75rem", md: "0.85rem" },
+              letterSpacing: 3,
+              textTransform: "uppercase",
+              color: IRON.boneFaint,
+              mt: 0.5,
+            }}
+          >
+            {METRIC_LABEL[metric]}
+          </Typography>
         </Box>
-        <Typography
-          sx={{
-            fontFamily: FONTS.stat,
-            fontSize: "0.7rem",
-            letterSpacing: 3,
-            textTransform: "uppercase",
-            color: IRON.boneFaint,
-            mt: 0.5,
-          }}
-        >
-          {METRIC_LABEL[metric]}
-        </Typography>
-      </Box>
-    </IronPlate>
+      </IronPlate>
+    </Box>
   );
 };
 
@@ -219,6 +276,9 @@ export const Podium: React.FC<{
       sx={{
         display: "grid",
         gridTemplateColumns: { xs: "1fr 1fr", md: "1fr 1.3fr 1fr" },
+        width: "100%",
+        maxWidth: { md: 880 },
+        mx: "auto",
         alignItems: "end",
         gap: { xs: 2, md: 3 },
       }}

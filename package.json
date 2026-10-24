@@ -5,8 +5,10 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@fontsource/metal-mania": "^5.2.6",
-    "@mui/icons-material": "^7.3.1",
+    "@fontsource/big-shoulders": "^5.3.0",
+    "@fontsource/metal-mania": "^5.3.0",
+    "@fontsource/new-rocker": "^5.3.0",
+    "@fontsource/special-elite": "^5.3.0",
     "@mui/material": "^7.3.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",
@@ -27,7 +29,7 @@
   "scripts": {
     "start": "react-scripts start",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build" ,
+    "deploy": "gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

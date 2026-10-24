@@ -3,6 +3,7 @@ import { Box, GlobalStyles, Typography } from "@mui/material";
 import { FONTS, IRON } from "../theme";
 import { playPlateClank } from "../utils/clang";
 import { useSound } from "../utils/sound";
+import { PUNCHED } from "../textures";
 
 // IPF competition plates: kg, colour, height and thickness in SVG units
 const PLATES = [
@@ -163,6 +164,8 @@ const Barbell: React.FC<
           flexShrink: 0,
           height: "auto",
           display: "block",
+          // competition colours, but years of chalk and grime on them
+          filter: "saturate(0.5) brightness(0.85) contrast(1.08)",
           overflow: "visible",
         }}
       >
@@ -290,7 +293,7 @@ const Barbell: React.FC<
               fontSize: "1.5rem",
               letterSpacing: 0,
               color: IRON.bloodText,
-              textShadow: "2px 2px 0 #000",
+              textShadow: PUNCHED,
             }}
           >
             {kg}

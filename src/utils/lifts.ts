@@ -45,5 +45,15 @@ export const METRIC_LABEL: Record<SortMode, string> = {
   dots: "DOTS",
 };
 
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+// "2026-10-23" -> "23 OCT 2026", identical on every device. Parsed by hand: new Date()
+// reads a bare date as UTC midnight, which shows the day before west of Greenwich.
+export const formatDate = (dateStr: string): string => {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y || !m || !d || m > 12) return dateStr;
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+};
+
 export const formatMetric = (value: number, mode: SortMode) =>
   mode === "dots" ? value.toFixed(2) : Math.round(value).toString();

@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material/styles";
+import { heavyShadow, PLATE_BG } from "./textures";
 
 // "Iron & Blood": black iron, bone-white chalk, and one colour that hurts.
 // Red is reserved for what matters: the active sort, PRs and #1.
@@ -9,26 +10,36 @@ export const IRON = {
   line: "rgba(232,224,208,0.12)",
   bone: "#e8e0d0",
   boneDim: "rgba(232,224,208,0.6)",
-  boneFaint: "rgba(232,224,208,0.4)",
+  // 0.52 keeps small labels at ~4.6:1 on the plate (0.4 was ~3.3:1)
+  boneFaint: "rgba(232,224,208,0.52)",
   blood: "#a3101a",
   bloodDeep: "#4a0608",
   // Brighter red for text on black (passes WCAG AA contrast, #a3101a does not)
   bloodText: "#ff3b2f",
   rust: "#8a3a24",
+  // A lift that went down since the last meet: hot rust, readable at small sizes
+  scar: "#e0804f",
 };
 
-// Three roles, nothing else:
-//   metal  - title, lifter names, section headings
-//   number - every number (podium, table, barbells, meet history, rank badges)
-//   stat   - every label and piece of UI text
+// The top three wear old metal, never polish: tarnished brass, pewter, rust.
+// (Red stays reserved for the active/open state, so #1 doesn't take it.)
+export const RANK_METAL: Record<number, string> = {
+  1: "#b9a36e",
+  2: "#9a9d9f",
+  3: "#a0583a",
+};
+
+// Four roles, nothing else:
+//   metal  - the "Sougueur" masthead, podium names and numerals, section headings: spiky 80s metal
+//   name   - lifter names on the board: rock-tattoo face whose capital I can't pass for a J
+//   number - every number (podium, table, barbells, meet history)
+//   stat   - every label and piece of UI text: worn typewriter, like a xeroxed zine (400 only)
 export const FONTS = {
-  metal: "'Metal Mania', 'Oswald', serif",
-  number: "'Big Shoulders Stencil', 'Oswald', sans-serif",
-  stat: "'Oswald', 'Helvetica Neue', sans-serif",
+  metal: "'Metal Mania', serif",
+  name: "'New Rocker', 'Metal Mania', serif",
+  number: "'Big Shoulders', sans-serif",
+  stat: "'Special Elite', 'Courier New', monospace",
 };
-
-// Hard offset shadow, no blur: the brutalist "stamped" look
-export const hardShadow = (offset = 6) => `${offset}px ${offset}px 0 #000`;
 
 export const theme = createTheme({
   palette: {
@@ -49,10 +60,11 @@ export const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          backgroundColor: "rgba(11,10,10,0.85)",
+          background: PLATE_BG,
+          boxShadow: `${heavyShadow(0.6)}, inset 0 2px 6px rgba(0,0,0,0.8)`,
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: IRON.line,
-            borderWidth: 2,
+            borderColor: "#000",
+            borderWidth: 1,
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
             borderColor: IRON.boneFaint,
@@ -68,7 +80,11 @@ export const theme = createTheme({
     },
     MuiMenu: {
       styleOverrides: {
-        paper: { border: `2px solid ${IRON.line}`, boxShadow: hardShadow(4) },
+        paper: {
+          background: PLATE_BG,
+          border: "1px solid #000",
+          boxShadow: heavyShadow(),
+        },
       },
     },
     MuiTableCell: {
